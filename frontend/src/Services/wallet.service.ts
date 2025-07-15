@@ -47,7 +47,6 @@ class MultiWalletService {
   }
 
   private async connectInternetIdentity(): Promise<WalletConnection> {
-    // This will use the existing auth service
     const { authService } = await import('./auth.service')
     const authState = await authService.login()
     
@@ -70,7 +69,6 @@ class MultiWalletService {
   }
 
   private async connectPlug(): Promise<WalletConnection> {
-    // Check if Plug is installed
     if (typeof window !== 'undefined' && (window as any).ic?.plug) {
       try {
         const isConnected = await (window as any).ic.plug.isConnected()
@@ -93,24 +91,39 @@ class MultiWalletService {
         
         return connection
       } catch (error) {
-        throw new Error('Plug wallet connection failed')
+        console.error('Plug wallet connection error:', error)
+        throw new Error(`Plug wallet connection failed: ${error}`)
       }
     }
     
-    throw new Error('Plug wallet not found. Please install Plug wallet extension.')
+    throw new Error('Plug wallet not found. Please install Plug wallet extension from https://plugwallet.ooo/')
   }
 
   private async connectMetaMask(): Promise<WalletConnection> {
     if (typeof window !== 'undefined' && (window as any).ethereum) {
       try {
+        if (!(window as any).ethereum.isMetaMask) {
+          throw new Error('MetaMask not detected. Please install MetaMask extension.')
+        }
+
         const accounts = await (window as any).ethereum.request({
           method: 'eth_requestAccounts'
         })
+
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No accounts found. Please unlock MetaMask.')
+        }
+
+        const chainId = await (window as any).ethereum.request({
+          method: 'eth_chainId'
+        })
+
+        const networkName = this.getNetworkName(chainId)
         
         const connection: WalletConnection = {
           type: WalletType.METAMASK,
           address: accounts[0],
-          network: 'Ethereum'
+          network: networkName
         }
         
         this.state.connectedWallets.push(connection)
@@ -120,26 +133,48 @@ class MultiWalletService {
         }
         
         return connection
-      } catch (error) {
-        throw new Error('MetaMask connection failed')
+      } catch (error: any) {
+        console.error('MetaMask connection error:', error)
+        throw new Error(`MetaMask connection failed: ${error.message}`)
       }
     }
     
-    throw new Error('MetaMask not found. Please install MetaMask extension.')
+    throw new Error('MetaMask not found. Please install MetaMask extension from https://metamask.io/')
   }
 
   private async connectTrustWallet(): Promise<WalletConnection> {
-    // Trust Wallet uses the same interface as MetaMask
-    if (typeof window !== 'undefined' && (window as any).ethereum?.isTrust) {
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
       try {
-        const accounts = await (window as any).ethereum.request({
+        const provider = (window as any).ethereum
+        const isTrustWallet = provider.isTrust || 
+                             provider.isTrustWallet ||
+                             (window as any).trustWallet
+
+        if (!isTrustWallet) {
+          if (provider.isMetaMask) {
+            throw new Error('Trust Wallet not detected. MetaMask is installed instead. Please install Trust Wallet browser extension.')
+          }
+          console.warn('Trust Wallet not specifically detected, checking if any ethereum provider is available')
+        }
+
+        const accounts = await provider.request({
           method: 'eth_requestAccounts'
         })
+
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No accounts found. Please unlock Trust Wallet.')
+        }
+
+        const chainId = await provider.request({
+          method: 'eth_chainId'
+        })
+
+        const networkName = this.getNetworkName(chainId)
         
         const connection: WalletConnection = {
           type: WalletType.TRUST_WALLET,
           address: accounts[0],
-          network: 'Ethereum'
+          network: networkName
         }
         
         this.state.connectedWallets.push(connection)
@@ -149,16 +184,16 @@ class MultiWalletService {
         }
         
         return connection
-      } catch (error) {
-        throw new Error('Trust Wallet connection failed')
+      } catch (error: any) {
+        console.error('Trust Wallet connection error:', error)
+        throw new Error(`Trust Wallet connection failed: ${error.message}`)
       }
     }
     
-    throw new Error('Trust Wallet not found. Please install Trust Wallet.')
+    throw new Error('Trust Wallet not found. Please install Trust Wallet browser extension from https://trustwallet.com/browser-extension')
   }
 
   private async connectStoic(): Promise<WalletConnection> {
-    // Stoic wallet implementation would go here
     throw new Error('Stoic wallet integration coming soon!')
   }
 
@@ -201,6 +236,47 @@ class MultiWalletService {
 
   getWalletConnection(type: WalletType): WalletConnection | null {
     return this.state.connectedWallets.find(wallet => wallet.type === type) || null
+  }
+
+  isWalletAvailable(type: WalletType): boolean {
+    if (typeof window === 'undefined') return false
+    
+    switch (type) {
+      case WalletType.INTERNET_IDENTITY:
+        return true
+      case WalletType.PLUG:
+        return !!(window as any).ic?.plug
+      case WalletType.METAMASK:
+        return !!((window as any).ethereum?.isMetaMask)
+      case WalletType.TRUST_WALLET:
+        const provider = (window as any).ethereum
+        return !!(provider?.isTrust || provider?.isTrustWallet || (window as any).trustWallet)
+      case WalletType.STOIC:
+        return false
+      default:
+        return false
+    }
+  }
+
+  getAvailableWallets(): WalletType[] {
+    return Object.values(WalletType).filter(type => this.isWalletAvailable(type))
+  }
+
+  private getNetworkName(chainId: string): string {
+    switch (chainId) {
+      case '0x1':
+        return 'Ethereum Mainnet'
+      case '0x5':
+        return 'Goerli Testnet'
+      case '0xaa36a7':
+        return 'Sepolia Testnet'
+      case '0x89':
+        return 'Polygon Mainnet'
+      case '0x38':
+        return 'BSC Mainnet'
+      default:
+        return `Chain ${chainId}`
+    }
   }
 }
 
