@@ -4,10 +4,10 @@ import { motion } from 'framer-motion'
 import { authService } from '../Services/auth.service'
 import { multiWalletService, WalletType } from '../Services/wallet.service'
 import type { AuthState } from '../Services/auth.service'
-import type { MultiWalletState } from '../Services/wallet.service'
+import type { MultiWalletState, WalletType as WalletTypeType } from '../Services/wallet.service'
 
 const Login = () => {
-  const [loadingWallet, setLoadingWallet] = useState<WalletType | null>(null)
+  const [loadingWallet, setLoadingWallet] = useState<WalletTypeType | null>(null)
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     principal: null,
@@ -30,7 +30,7 @@ const Login = () => {
     }
   }
 
-  const handleWalletConnect = async (walletType: WalletType) => {
+  const handleWalletConnect = async (walletType: WalletTypeType) => {
     setLoadingWallet(walletType)
     try {
       const connection = await multiWalletService.connectWallet(walletType)

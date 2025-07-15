@@ -1,10 +1,12 @@
-export enum WalletType {
-  INTERNET_IDENTITY = 'internet-identity',
-  PLUG = 'plug',
-  METAMASK = 'metamask',
-  TRUST_WALLET = 'trust-wallet',
-  STOIC = 'stoic'
-}
+export const WalletType = {
+  INTERNET_IDENTITY: 'internet-identity',
+  PLUG: 'plug',
+  METAMASK: 'metamask',
+  TRUST_WALLET: 'trust-wallet',
+  STOIC: 'stoic'
+} as const
+
+export type WalletType = typeof WalletType[keyof typeof WalletType]
 
 export interface WalletConnection {
   type: WalletType
