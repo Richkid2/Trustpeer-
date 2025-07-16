@@ -29,6 +29,28 @@ class MultiWalletService {
     connectedWallets: []
   }
 
+  private getEthereumProvider(preferredWallet: WalletType): any {
+    if (typeof window === 'undefined') return null
+    
+    const ethereum = (window as any).ethereum
+    if (!ethereum) return null
+
+    // If there are multiple providers, try to select the preferred one
+    if (ethereum.providers && ethereum.providers.length > 0) {
+      const provider = ethereum.providers.find((p: any) => {
+        if (preferredWallet === WalletType.METAMASK) {
+          return p.isMetaMask && !p.isTrust && !p.isTrustWallet
+        } else if (preferredWallet === WalletType.TRUST_WALLET) {
+          return p.isTrust || p.isTrustWallet
+        }
+        return false
+      })
+      return provider || ethereum.providers[0]
+    }
+
+    return ethereum
+  }
+
   async connectWallet(type: WalletType): Promise<WalletConnection> {
     switch (type) {
       case WalletType.INTERNET_IDENTITY:
@@ -100,97 +122,108 @@ class MultiWalletService {
   }
 
   private async connectMetaMask(): Promise<WalletConnection> {
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      try {
-        if (!(window as any).ethereum.isMetaMask) {
-          throw new Error('MetaMask not detected. Please install MetaMask extension.')
-        }
-
-        const accounts = await (window as any).ethereum.request({
-          method: 'eth_requestAccounts'
-        })
-
-        if (!accounts || accounts.length === 0) {
-          throw new Error('No accounts found. Please unlock MetaMask.')
-        }
-
-        const chainId = await (window as any).ethereum.request({
-          method: 'eth_chainId'
-        })
-
-        const networkName = this.getNetworkName(chainId)
-        
-        const connection: WalletConnection = {
-          type: WalletType.METAMASK,
-          address: accounts[0],
-          network: networkName
-        }
-        
-        this.state.connectedWallets.push(connection)
-        if (!this.state.primaryWallet) {
-          this.state.primaryWallet = connection
-          this.state.isConnected = true
-        }
-        
-        return connection
-      } catch (error: any) {
-        console.error('MetaMask connection error:', error)
-        throw new Error(`MetaMask connection failed: ${error.message}`)
-      }
-    }
+    const provider = this.getEthereumProvider(WalletType.METAMASK)
     
-    throw new Error('MetaMask not found. Please install MetaMask extension from https://metamask.io/')
+    if (!provider) {
+      throw new Error('MetaMask not found. Please install MetaMask extension from https://metamask.io/')
+    }
+
+    try {
+      // Check if MetaMask is specifically available
+      if (!provider.isMetaMask) {
+        throw new Error('MetaMask not detected. Please install MetaMask extension.')
+      }
+
+      // Check if Trust Wallet is also present and prioritize MetaMask
+      if (provider.isTrust || provider.isTrustWallet) {
+        throw new Error('Both MetaMask and Trust Wallet detected. Please disable one of them or use Trust Wallet button instead.')
+      }
+
+      const accounts = await provider.request({
+        method: 'eth_requestAccounts'
+      })
+
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts found. Please unlock MetaMask.')
+      }
+
+      const chainId = await provider.request({
+        method: 'eth_chainId'
+      })
+
+      const networkName = this.getNetworkName(chainId)
+      
+      const connection: WalletConnection = {
+        type: WalletType.METAMASK,
+        address: accounts[0],
+        network: networkName
+      }
+      
+      this.state.connectedWallets.push(connection)
+      if (!this.state.primaryWallet) {
+        this.state.primaryWallet = connection
+        this.state.isConnected = true
+      }
+      
+      return connection
+    } catch (error: any) {
+      console.error('MetaMask connection error:', error)
+      throw new Error(`MetaMask connection failed: ${error.message}`)
+    }
   }
 
   private async connectTrustWallet(): Promise<WalletConnection> {
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      try {
-        const provider = (window as any).ethereum
-        const isTrustWallet = provider.isTrust || 
-                             provider.isTrustWallet ||
-                             (window as any).trustWallet
-
-        if (!isTrustWallet) {
-          if (provider.isMetaMask) {
-            throw new Error('Trust Wallet not detected. MetaMask is installed instead. Please install Trust Wallet browser extension.')
-          }
-          console.warn('Trust Wallet not specifically detected, checking if any ethereum provider is available')
-        }
-
-        const accounts = await provider.request({
-          method: 'eth_requestAccounts'
-        })
-
-        if (!accounts || accounts.length === 0) {
-          throw new Error('No accounts found. Please unlock Trust Wallet.')
-        }
-
-        const chainId = await provider.request({
-          method: 'eth_chainId'
-        })
-
-        const networkName = this.getNetworkName(chainId)
-        
-        const connection: WalletConnection = {
-          type: WalletType.TRUST_WALLET,
-          address: accounts[0],
-          network: networkName
-        }
-        
-        this.state.connectedWallets.push(connection)
-        if (!this.state.primaryWallet) {
-          this.state.primaryWallet = connection
-          this.state.isConnected = true
-        }
-        
-        return connection
-      } catch (error: any) {
-        console.error('Trust Wallet connection error:', error)
-        throw new Error(`Trust Wallet connection failed: ${error.message}`)
-      }
-    }
+    const provider = this.getEthereumProvider(WalletType.TRUST_WALLET)
     
-    throw new Error('Trust Wallet not found. Please install Trust Wallet browser extension from https://trustwallet.com/browser-extension')
+    if (!provider) {
+      throw new Error('Trust Wallet not found. Please install Trust Wallet browser extension from https://trustwallet.com/browser-extension')
+    }
+
+    try {
+      // Check if Trust Wallet is specifically available
+      const isTrustWallet = provider.isTrust || 
+                           provider.isTrustWallet ||
+                           (window as any).trustWallet
+
+      if (!isTrustWallet) {
+        if (provider.isMetaMask) {
+          throw new Error('Trust Wallet not detected. MetaMask is installed instead. Please install Trust Wallet browser extension.')
+        }
+        // If no specific wallet detected, try to use any ethereum provider as Trust Wallet
+        console.warn('Trust Wallet not specifically detected, attempting connection with available ethereum provider')
+      }
+
+      const accounts = await provider.request({
+        method: 'eth_requestAccounts'
+      })
+
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts found. Please unlock Trust Wallet.')
+      }
+
+      const chainId = await provider.request({
+        method: 'eth_chainId'
+      })
+
+      const networkName = this.getNetworkName(chainId)
+      
+      const connection: WalletConnection = {
+        type: WalletType.TRUST_WALLET,
+        address: accounts[0],
+        network: networkName
+      }
+      
+      this.state.connectedWallets.push(connection)
+      if (!this.state.primaryWallet) {
+        this.state.primaryWallet = connection
+        this.state.isConnected = true
+      }
+      
+      return connection
+    } catch (error: any) {
+      console.error('Trust Wallet connection error:', error)
+      throw new Error(`Trust Wallet connection failed: ${error.message}`)
+    }
   }
 
   private async connectStoic(): Promise<WalletConnection> {

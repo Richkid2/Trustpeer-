@@ -10,6 +10,15 @@ const Home = () => {
   const [walletState, setWalletState] = useState<MultiWalletState>(multiWalletService.getState());
   const fullText = "Trade Crypto";
   
+  const handleDisconnect = async () => {
+    try {
+      await multiWalletService.disconnectAll();
+      setWalletState(multiWalletService.getState());
+    } catch (error) {
+      console.error('Disconnect failed:', error);
+    }
+  };
+  
   useEffect(() => {
     let index = 0;
     const timer = setInterval(() => {
@@ -85,6 +94,12 @@ const Home = () => {
                   >
                     Dashboard
                   </Link>
+                  <button
+                    onClick={handleDisconnect}
+                    className="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    Disconnect
+                  </button>
                 </div>
               ) : (
                 <Link
