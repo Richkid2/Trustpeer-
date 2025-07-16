@@ -3,6 +3,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './Pages/Home'
 import Login from './Pages/Login'
+import Dashboard from './Pages/Dashboard'
 import SearchTrader from './Pages/SearchTrader'
 import StartTrade from './Pages/StartTrade'
 import EscrowProgress from './Pages/EscrowProgress'
@@ -15,6 +16,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/search-trader" element={<SearchTrader />} />
         <Route path="/start-trade" element={<StartTrade />} />
         <Route path="/escrow-progress" element={<EscrowProgress />} />
