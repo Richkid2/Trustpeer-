@@ -8,6 +8,7 @@ export interface TradeDetails {
   currency: string
   description: string
   type: 'buy' | 'sell' | 'exchange'
+  paymentMethod: 'bank_transfer' | 'paypal' | 'cash' | 'other'
   status: TradeStatus
   createdAt: Date
   updatedAt: Date
@@ -38,9 +39,9 @@ export interface CreateTradeRequest {
   partnerAddress: string
   amount: string
   currency: string
-  description: string
-  type: 'buy' | 'sell' | 'exchange'
-  releaseConditions?: string[]
+  tradeType: 'buy' | 'sell'
+  paymentMethod: 'bank_transfer' | 'paypal' | 'cash' | 'other'
+  terms: string
 }
 
 export interface EscrowState {
@@ -102,17 +103,18 @@ class EscrowService {
 
       const newTrade: TradeDetails = {
         id: `TR${Date.now()}`,
-        buyer: request.type === 'buy' ? currentUser : request.partnerAddress,
-        seller: request.type === 'sell' ? currentUser : request.partnerAddress,
+        buyer: request.tradeType === 'buy' ? currentUser : request.partnerAddress,
+        seller: request.tradeType === 'sell' ? currentUser : request.partnerAddress,
         amount: request.amount,
         currency: request.currency,
-        description: request.description,
-        type: request.type,
+        description: request.terms,
+        type: request.tradeType,
+        paymentMethod: request.paymentMethod,
         status: TradeStatus.CREATED,
         createdAt: new Date(),
         updatedAt: new Date(),
         escrowAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
-        releaseConditions: request.releaseConditions || [
+        releaseConditions: [
           'Both parties confirm trade completion',
           'Funds are released after confirmation'
         ],
@@ -299,6 +301,28 @@ class EscrowService {
     ).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
   }
 
+  async getAllTrades(): Promise<TradeDetails[]> {
+    try {
+      // In a real app, this would fetch from the blockchain/API
+      return [...this.state.activeTrades, ...this.state.completedTrades]
+    } catch (error) {
+      console.error('Error fetching all trades:', error)
+      return []
+    }
+  }
+
+  async getUserTrades(userAddress: string): Promise<TradeDetails[]> {
+    try {
+      const allTrades = await this.getAllTrades()
+      return allTrades.filter(trade => 
+        trade.buyer === userAddress || trade.seller === userAddress
+      )
+    } catch (error) {
+      console.error('Error fetching user trades:', error)
+      return []
+    }
+  }
+
   // Load mock data for development
   private loadMockData() {
     // Mock active trade
@@ -310,6 +334,7 @@ class EscrowService {
       currency: 'ETH',
       description: 'Trading ETH for service development',
       type: 'buy',
+      paymentMethod: 'bank_transfer',
       status: TradeStatus.FUNDS_DEPOSITED,
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
