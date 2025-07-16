@@ -1,94 +1,348 @@
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { ratingService } from '../Services/rating.service'
+import { escrowService } from '../Services/escrow.service'
+import { multiWalletService } from '../Services/wallet.service'
+import StarRating from '../Components/StarRating'
+import type { TradeDetails } from '../Services/escrow.service'
 
 const RateTrader = () => {
+  const [searchParams] = useSearchParams()
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [trade, setTrade] = useState<TradeDetails | null>(null)
+  const [traderAddress, setTraderAddress] = useState('')
+  const [isWalletConnected, setIsWalletConnected] = useState(false)
+  const navigate = useNavigate()
 
-  const handleStarClick = (value: number) => {
-    setRating(value)
+  useEffect(() => {
+    checkWalletConnection()
+    loadTradeData()
+  }, [])
+
+  const checkWalletConnection = () => {
+    const walletState = multiWalletService.getState()
+    setIsWalletConnected(walletState.isConnected)
+  }
+
+  const loadTradeData = async () => {
+    const tradeId = searchParams.get('tradeId')
+    const traderAddr = searchParams.get('traderAddress')
+    
+    if (!tradeId || !traderAddr) {
+      setError('Missing trade information')
+      return
+    }
+
+    setTraderAddress(traderAddr)
+
+    try {
+      const tradeData = await escrowService.getTrade(tradeId)
+      if (tradeData) {
+        setTrade(tradeData)
+      }
+    } catch (error) {
+      console.error('Failed to load trade data:', error)
+    }
+  }
+
+  const handleRatingChange = (newRating: number) => {
+    setRating(newRating)
+    setError('')
+  }
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value)
+    setError('')
+  }
+
+  const validateForm = () => {
+    if (rating === 0) {
+      setError('Please select a rating')
+      return false
+    }
+
+    if (comment.trim().length < 10) {
+      setError('Please provide a comment with at least 10 characters')
+      return false
+    }
+
+    return true
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    if (!isWalletConnected) {
+      setError('Please connect your wallet first')
+      return
+    }
+
+    if (!trade) {
+      setError('Trade information not available')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const walletState = multiWalletService.getState()
+      const currentUserAddress = walletState.connectedWallets[0]?.address || ''
+
+      await ratingService.submitRating(
+        trade.id,
+        traderAddress,
+        rating,
+        comment,
+        currentUserAddress
+      )
+
+      setSuccess(true)
+      
+      // Navigate to home after 2 seconds
+      setTimeout(() => {
+        navigate('/')
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to submit rating:', error)
+      setError(error instanceof Error ? error.message : 'Failed to submit rating')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const getRatingText = (rating: number) => {
+    switch (rating) {
+      case 1: return 'Poor'
+      case 2: return 'Fair'
+      case 3: return 'Good'
+      case 4: return 'Very Good'
+      case 5: return 'Excellent'
+      default: return 'Select a rating'
+    }
+  }
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  if (!isWalletConnected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 text-center"
+        >
+          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Wallet Required</h2>
+          <p className="text-gray-600 mb-6">Connect your wallet to rate your trading partner</p>
+          <Link
+            to="/login"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg block text-center"
+          >
+            Connect Wallet
+          </Link>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 text-center"
+        >
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Rating Submitted!</h2>
+          <p className="text-gray-600 mb-4">Thank you for rating your trading partner</p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-center mb-2">
+              <StarRating rating={rating} size="lg" />
+            </div>
+            <p className="text-green-800 text-sm">Your {getRatingText(rating)} rating has been recorded</p>
+          </div>
+          <p className="text-sm text-gray-500">Redirecting to home...</p>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Rate Your Trading Partner</h2>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">Trade Completed Successfully!</h3>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <p className="text-green-800">
-                  Funds have been released and the trade is complete!
-                </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Rate Your Trading Partner</h1>
+          <p className="text-gray-600">Help build trust in the TrustPeer community</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8"
+        >
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-green-800 font-semibold">Trade Completed Successfully!</p>
+                <p className="text-green-700 text-sm">Funds have been released and the trade is complete</p>
               </div>
             </div>
           </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">Rate Your Experience</h3>
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => handleStarClick(star)}
-                  className={`text-3xl transition-colors duration-200 ${
-                    star <= rating ? 'text-yellow-400' : 'text-gray-300'
-                  }`}
-                >
-                  ★
-                </button>
-              ))}
+        </motion.div>
+
+        {trade && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Trade Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Trade ID</p>
+                <p className="font-medium font-mono">{trade.id}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Amount</p>
+                <p className="font-medium text-lg">{trade.amount} {trade.currency}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Trading Partner</p>
+                <p className="font-medium font-mono">{formatAddress(traderAddress)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Trade Type</p>
+                <p className="font-medium capitalize">{trade.type}</p>
+              </div>
             </div>
-            <p className="text-center text-sm text-gray-600">
-              {rating === 0 && 'Click a star to rate'}
-              {rating === 1 && 'Poor'}
-              {rating === 2 && 'Fair'}
-              {rating === 3 && 'Good'}
-              {rating === 4 && 'Very Good'}
-              {rating === 5 && 'Excellent'}
-            </p>
-          </div>
-          
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Leave a comment (optional)
-            </label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={4}
-              placeholder="Share your experience with this trader..."
-            />
-          </div>
-          
-          <div className="space-y-3">
-            <button 
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
-              disabled={rating === 0}
+          </motion.div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20"
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center"
+              >
+                <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <span className="text-red-700">{error}</span>
+              </motion.div>
+            )}
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-4">
+                How would you rate your experience?
+              </label>
+              <div className="flex flex-col items-center space-y-4">
+                <StarRating
+                  rating={rating}
+                  size="lg"
+                  interactive={true}
+                  onChange={handleRatingChange}
+                />
+                <p className="text-lg font-medium text-gray-700">
+                  {getRatingText(rating)}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Share your experience
+              </label>
+              <textarea
+                value={comment}
+                onChange={handleCommentChange}
+                rows={5}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                placeholder="Describe your trading experience. Was communication good? Did they follow through on their commitments? Be specific and helpful to other traders."
+                required
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                {comment.length}/10 characters minimum
+              </p>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"
             >
-              Submit Rating
-            </button>
-            
-            <Link 
-              to="/"
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200 block text-center"
-            >
-              Return to Home
-            </Link>
-          </div>
-        </div>
-        
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-blue-500 hover:text-blue-600">
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting Rating...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  Submit Rating
+                </>
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 text-center"
+        >
+          <Link 
+            to="/" 
+            className="text-blue-600 hover:text-blue-700 font-medium transition duration-200 flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
             Back to Home
           </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
