@@ -152,31 +152,21 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 md:mb-8"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/')}
-                className="p-2 bg-slate-800/50 hover:bg-slate-700 rounded-xl border border-slate-700/50 transition-colors"
-              >
-                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </motion.button>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Dashboard</h1>
-                <p className="text-slate-400 text-sm md:text-base">Welcome back, trader!</p>
-              </div>
-            </div>
+          <div className="flex items-center gap-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={handleDisconnect}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors self-start sm:self-auto"
+              onClick={() => navigate('/')}
+              className="p-2 bg-slate-800/50 hover:bg-slate-700 rounded-xl border border-slate-700/50 transition-colors"
             >
-              Disconnect
+              <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </motion.button>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Dashboard</h1>
+              <p className="text-slate-400 text-sm md:text-base">Welcome back, trader!</p>
+            </div>
           </div>
         </motion.div>
 
@@ -341,8 +331,55 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="text-xl font-bold text-white mb-4">Account Settings</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-3 border-b border-slate-700/50">
+                  <div>
+                    <h4 className="text-white font-medium">Wallet Address</h4>
+                    <p className="text-slate-400 text-sm">
+                      {walletState.primaryWallet?.address?.slice(0, 6)}...{walletState.primaryWallet?.address?.slice(-4)}
+                    </p>
+                  </div>
+                  <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-400 text-sm">
+                    Connected
+                  </div>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-slate-700/50">
+                  <div>
+                    <h4 className="text-white font-medium">Wallet Type</h4>
+                    <p className="text-slate-400 text-sm capitalize">{walletState.primaryWallet?.type}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between py-3">
+                  <div>
+                    <h4 className="text-white font-medium">Logout</h4>
+                    <p className="text-slate-400 text-sm">Disconnect your wallet and logout</p>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleDisconnect}
+                    className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Logout
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Other tabs content */}
-        {activeTab !== 'overview' && (
+        {activeTab !== 'overview' && activeTab !== 'settings' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
