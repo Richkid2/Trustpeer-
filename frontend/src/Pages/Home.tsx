@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { 
+  Zap, 
+  Shield, 
+  Lock, 
+  MessageCircle 
+} from "lucide-react";
 import { multiWalletService } from "../Services/wallet.service";
 import type { MultiWalletState } from "../Services/wallet.service";
 
@@ -58,7 +64,7 @@ const Home = () => {
             >
               <div className="relative">
                 <img
-                  src="/src/assets/images/trustpeer-logo.png"
+                  src="/trustpeer-logo.png"
                   alt="TrustPeer"
                   className="h-10 w-auto"
                 />
@@ -402,7 +408,7 @@ const Home = () => {
                     { 
                       value: "<1s", 
                       label: "Transaction Speed", 
-                      icon: "⚡", 
+                      icon: Zap, 
                       color: "from-emerald-400 to-emerald-600",
                       bgColor: "bg-emerald-500/10",
                       borderColor: "border-emerald-500/20"
@@ -410,7 +416,7 @@ const Home = () => {
                     { 
                       value: "100%", 
                       label: "Security Rate", 
-                      icon: "🛡️", 
+                      icon: Shield, 
                       color: "from-orange-400 to-orange-600",
                       bgColor: "bg-orange-500/10",
                       borderColor: "border-orange-500/20"
@@ -418,7 +424,7 @@ const Home = () => {
                     { 
                       value: "0", 
                       label: "Scams Reported", 
-                      icon: "🔒", 
+                      icon: Lock, 
                       color: "from-red-400 to-red-600",
                       bgColor: "bg-red-500/10",
                       borderColor: "border-red-500/20"
@@ -426,7 +432,7 @@ const Home = () => {
                     { 
                       value: "24/7", 
                       label: "Live Support", 
-                      icon: "💬", 
+                      icon: MessageCircle, 
                       color: "from-blue-400 to-blue-600",
                       bgColor: "bg-blue-500/10",
                       borderColor: "border-blue-500/20"
@@ -445,9 +451,9 @@ const Home = () => {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 1.4 + index * 0.1, duration: 0.5 }}
-                        className="text-3xl mb-3"
+                        className="text-3xl mb-3 flex justify-center"
                       >
-                        {stat.icon}
+                        <stat.icon size={32} className="text-white" />
                       </motion.div>
                       
                       {/* Value */}
