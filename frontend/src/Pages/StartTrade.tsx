@@ -13,7 +13,6 @@ import { escrowService } from '../Services/escrow.service'
 import { multiWalletService } from '../Services/wallet.service'
 import type { CreateTradeRequest } from '../Services/escrow.service'
 
-// Helper functions for address formats
 const getAddressPlaceholder = (currency: string): string => {
   switch (currency) {
     case 'ETH':
@@ -57,13 +56,10 @@ const validateAddress = (address: string, currency: string): boolean => {
     case 'USDC':
     case 'USDT':
     case 'MATIC':
-      // Ethereum/EVM address validation
       return /^0x[a-fA-F0-9]{40}$/.test(address)
     case 'BTC':
-      // Bitcoin address validation (simplified)
       return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address) || /^bc1[a-z0-9]{39,59}$/.test(address)
     case 'ICP':
-      // ICP Principal ID validation (simplified)
       return /^[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{3}$/.test(address)
     default:
       return address.length > 10
@@ -88,7 +84,6 @@ const StartTrade = () => {
 
   const totalSteps = 3;
 
-  // Dynamic text based on trade type
   const isBuying = formData.tradeType === 'buy';
   const pageTitle = isBuying ? 'Start a New Purchase' : 'Create a Sell Offer';
   const pageSubtitle = isBuying
@@ -98,7 +93,6 @@ const StartTrade = () => {
   useEffect(() => {
     checkWalletConnection()
 
-    // Check wallet connection periodically
     const interval = setInterval(checkWalletConnection, 2000)
     return () => clearInterval(interval)
   }, [])
@@ -186,7 +180,6 @@ const StartTrade = () => {
       const trade = await escrowService.createTrade(formData)
       console.log('Trade created:', trade)
 
-      // Navigate to escrow progress page
       navigate(`/escrow-progress?tradeId=${trade.id}`);
     } catch (err) {
       console.error('Failed to create trade:', err);

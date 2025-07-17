@@ -23,7 +23,7 @@ interface LoadingProviderProps {
 }
 
 export const LoadingProvider = ({ children }: LoadingProviderProps) => {
-  const [isAppLoading, setIsAppLoading] = useState(true) // Start with app loading
+  const [isAppLoading, setIsAppLoading] = useState(true)
 
   const setAppLoading = (loading: boolean) => {
     setIsAppLoading(loading)

@@ -38,13 +38,11 @@ const Login = () => {
       await multiWalletService.connectWallet(walletType)
       setWalletState(multiWalletService.getState())
       
-      // If it's Internet Identity, also update auth state
       if (walletType === WalletType.INTERNET_IDENTITY) {
         const state = await authService.getAuthState()
         setAuthState(state)
       }
       
-      // Navigate to home on successful connection
       navigate('/')
     } catch (error) {
       console.error('Wallet connection failed:', error)

@@ -54,7 +54,7 @@ const EscrowProgress = () => {
     setActionLoading('deposit')
     try {
       await escrowService.depositFunds(trade.id)
-      await loadTradeData() // Refresh data
+      await loadTradeData()
     } catch (error) {
       console.error('Failed to deposit funds:', error)
       setError(error instanceof Error ? error.message : 'Failed to deposit funds')
@@ -69,7 +69,7 @@ const EscrowProgress = () => {
     setActionLoading('confirm')
     try {
       await escrowService.confirmTrade(trade.id)
-      await loadTradeData() // Refresh data
+      await loadTradeData()
     } catch (error) {
       console.error('Failed to confirm trade:', error)
       setError(error instanceof Error ? error.message : 'Failed to confirm trade')
@@ -84,7 +84,6 @@ const EscrowProgress = () => {
     setActionLoading('release')
     try {
       await escrowService.releaseFunds(trade.id)
-      // Navigate to rating page after successful release
       navigate(`/rate-trader?tradeId=${trade.id}&traderAddress=${trade.buyer === getCurrentUserAddress() ? trade.seller : trade.buyer}`)
     } catch (error) {
       console.error('Failed to release funds:', error)
