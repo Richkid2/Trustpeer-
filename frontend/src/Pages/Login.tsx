@@ -33,6 +33,7 @@ const Login = () => {
 
   const handleWalletConnect = async (walletType: WalletType) => {
     setLoadingWallet(walletType)
+    
     try {
       await multiWalletService.connectWallet(walletType)
       setWalletState(multiWalletService.getState())
