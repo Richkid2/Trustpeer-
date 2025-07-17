@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { multiWalletService } from "../Services/wallet.service";
+import type { MultiWalletState } from "../Services/wallet.service";
 
 const Home = () => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [walletState, setWalletState] = useState<MultiWalletState>(multiWalletService.getState());
   const fullText = "Trade Crypto";
   
   useEffect(() => {
@@ -20,6 +23,20 @@ const Home = () => {
     }, 100);
     
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    // Check wallet connection status
+    const checkWalletConnection = () => {
+      setWalletState(multiWalletService.getState());
+    };
+    
+    checkWalletConnection();
+    
+    // Check every 2 seconds for wallet connection changes
+    const interval = setInterval(checkWalletConnection, 2000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -57,12 +74,26 @@ const Home = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="hidden md:block"
             >
-              <Link
-                to="/login"
-                className="bg-gradient-primary hover:bg-gradient-secondary text-white font-medium py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Connect Wallet
-              </Link>
+              {walletState.isConnected ? (
+                <div className="flex items-center space-x-4">
+                  <div className="text-green-400 text-sm">
+                    {walletState.primaryWallet?.type} Connected
+                  </div>
+                  <Link
+                    to="/dashboard"
+                    className="bg-gradient-primary hover:bg-gradient-secondary text-white font-medium py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    Dashboard
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="bg-gradient-primary hover:bg-gradient-secondary text-white font-medium py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Connect Wallet
+                </Link>
+              )}
             </motion.div>
           </div>
         </div>
@@ -634,10 +665,10 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  to="/login"
+                  to={walletState.isConnected ? "/dashboard" : "/login"}
                   className="bg-white hover:bg-gray-100 text-[#f5762c] font-bold py-4 px-12 rounded-2xl text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl min-w-[250px] block text-center"
                 >
-                  Connect Wallet
+                  {walletState.isConnected ? "Go to Dashboard" : "Connect Wallet"}
                 </Link>
               </motion.div>
               
@@ -746,10 +777,10 @@ const Home = () => {
                 </li>
                 <li>
                   <Link
-                    to="/login"
+                    to={walletState.isConnected ? "/dashboard" : "/login"}
                     className="text-gray-300 hover:text-[#f5762c] transition-colors duration-200 text-base font-light"
                   >
-                    Connect Wallet
+                    {walletState.isConnected ? "Dashboard" : "Connect Wallet"}
                   </Link>
                 </li>
               </ul>
