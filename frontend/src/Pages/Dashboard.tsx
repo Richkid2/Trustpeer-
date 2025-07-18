@@ -183,7 +183,7 @@ const Dashboard = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'overview' | 'trades' | 'ratings' | 'settings')}
                 className={`flex-1 min-w-0 flex items-center justify-center gap-2 py-3 px-2 sm:px-4 rounded-xl font-medium transition-colors text-sm sm:text-base ${
                   activeTab === tab.id
                     ? 'bg-blue-500 text-white'
