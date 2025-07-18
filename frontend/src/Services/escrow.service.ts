@@ -8,7 +8,7 @@ export interface TradeDetails {
   currency: string
   description: string
   type: 'buy' | 'sell' | 'exchange'
-  paymentMethod: 'bank_transfer' | 'paypal' | 'cash' | 'other'
+  paymentMethod: 'bank_transfer'
   status: TradeStatus
   createdAt: Date
   updatedAt: Date
@@ -40,7 +40,7 @@ export interface CreateTradeRequest {
   amount: string
   currency: string
   tradeType: 'buy' | 'sell'
-  paymentMethod: 'bank_transfer' | 'paypal' | 'cash' | 'other'
+  paymentMethod: 'bank_transfer'
   terms: string
 }
 

@@ -2,7 +2,8 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
-import { LoadingProvider, useLoading } from './Components/LoadingProvider'
+import { LoadingProvider } from './Components/LoadingProvider'
+import { useLoading } from './Components/hooks'
 import AppLoader from './Components/AppLoader'
 import ScrollToTop from './Components/ScrollToTop'
 import Home from './Pages/Home'
@@ -22,7 +23,7 @@ const AppRouter = () => {
     // Simulate app initialization
     const initializeApp = async () => {
       // Reduced loading time for better UX (you can replace this with actual initialization)
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Changed from 3000 to 2000
+      await new Promise(resolve => setTimeout(resolve, 3000)) // Changed from 3000 to 2000
       hideAppLoader()
     }
 

@@ -5,7 +5,7 @@ const ScrollToTop = () => {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    // Simply scroll to top on route change - no loading
+    // Simply scroll to top on 
     window.scrollTo({
       top: 0,
       left: 0,

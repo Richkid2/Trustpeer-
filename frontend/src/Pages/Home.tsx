@@ -1,21 +1,18 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { 
-  Zap, 
-  Shield, 
-  Lock, 
-  MessageCircle 
-} from "lucide-react";
+import { Zap, Shield, Lock, MessageCircle } from "lucide-react";
 import { multiWalletService } from "../Services/wallet.service";
 import type { MultiWalletState } from "../Services/wallet.service";
 
 const Home = () => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
-  const [walletState, setWalletState] = useState<MultiWalletState>(multiWalletService.getState());
+  const [walletState, setWalletState] = useState<MultiWalletState>(
+    multiWalletService.getState()
+  );
   const fullText = "Trade Crypto";
-  
+
   useEffect(() => {
     let index = 0;
     const timer = setInterval(() => {
@@ -27,7 +24,7 @@ const Home = () => {
         clearInterval(timer);
       }
     }, 100);
-    
+
     return () => clearInterval(timer);
   }, []);
 
@@ -36,18 +33,18 @@ const Home = () => {
     const checkWalletConnection = () => {
       setWalletState(multiWalletService.getState());
     };
-    
+
     checkWalletConnection();
-    
-    // Check every 2 seconds for wallet connection changes
+
+    // wallet connection changes
     const interval = setInterval(checkWalletConnection, 2000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <motion.header 
+      <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -55,7 +52,7 @@ const Home = () => {
       >
         <div className="w-full px-4 md:px-6 lg:px-16 xl:px-24">
           <div className="flex justify-between items-center py-4">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
@@ -105,233 +102,233 @@ const Home = () => {
       </motion.header>
 
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-32">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2 }}
           className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-red-600/20"
         />
-        
+
         {/* Floating animation elements */}
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-20, 20, -20],
-            rotate: [0, 360]
+            rotate: [0, 360],
           }}
-          transition={{ 
+          transition={{
             duration: 8,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-20 left-20 w-4 h-4 bg-orange-500 rounded-full blur-sm"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [20, -20, 20],
-            rotate: [360, 0]
+            rotate: [360, 0],
           }}
-          transition={{ 
+          transition={{
             duration: 10,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-40 right-32 w-6 h-6 bg-red-600 rounded-full blur-sm"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-30, 30, -30],
-            x: [-10, 10, -10]
+            x: [-10, 10, -10],
           }}
-          transition={{ 
+          transition={{
             duration: 12,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-32 left-1/3 w-3 h-3 bg-white rounded-full blur-sm"
         />
-        
-        <motion.div 
-          animate={{ 
+
+        <motion.div
+          animate={{
             y: [-40, 40, -40],
             x: [15, -15, 15],
-            rotate: [0, 180, 360]
+            rotate: [0, 180, 360],
           }}
-          transition={{ 
+          transition={{
             duration: 15,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-60 left-1/4 w-2 h-2 bg-emerald-400 rounded-full blur-sm opacity-60"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [25, -25, 25],
             x: [-20, 20, -20],
-            scale: [0.8, 1.2, 0.8]
+            scale: [0.8, 1.2, 0.8],
           }}
-          transition={{ 
+          transition={{
             duration: 18,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-80 right-20 w-5 h-5 bg-purple-500 rounded-full blur-sm opacity-50"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-35, 35, -35],
-            rotate: [180, 0, 180]
+            rotate: [180, 0, 180],
           }}
-          transition={{ 
+          transition={{
             duration: 14,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-60 right-1/4 w-3 h-3 bg-blue-400 rounded-full blur-sm opacity-70"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [30, -30, 30],
             x: [10, -10, 10],
-            scale: [1, 0.5, 1]
+            scale: [1, 0.5, 1],
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-1/2 left-10 w-4 h-4 bg-yellow-400 rounded-full blur-sm opacity-40"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-25, 25, -25],
             x: [-15, 15, -15],
-            rotate: [0, 270, 360]
+            rotate: [0, 270, 360],
           }}
-          transition={{ 
+          transition={{
             duration: 16,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-1/3 right-10 w-3 h-3 bg-pink-400 rounded-full blur-sm opacity-50"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [40, -40, 40],
-            scale: [0.6, 1.4, 0.6]
+            scale: [0.6, 1.4, 0.6],
           }}
-          transition={{ 
+          transition={{
             duration: 22,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-80 left-1/2 w-2 h-2 bg-cyan-400 rounded-full blur-sm opacity-60"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-45, 45, -45],
             x: [20, -20, 20],
-            rotate: [90, 270, 450]
+            rotate: [90, 270, 450],
           }}
-          transition={{ 
+          transition={{
             duration: 24,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-96 left-3/4 w-6 h-6 bg-indigo-400 rounded-full blur-sm opacity-30"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [15, -15, 15],
             x: [-25, 25, -25],
-            scale: [1.2, 0.8, 1.2]
+            scale: [1.2, 0.8, 1.2],
           }}
-          transition={{ 
+          transition={{
             duration: 13,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-40 right-1/3 w-4 h-4 bg-teal-400 rounded-full blur-sm opacity-45"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-20, 20, -20],
-            rotate: [0, 360, 720]
+            rotate: [0, 360, 720],
           }}
-          transition={{ 
+          transition={{
             duration: 19,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-72 left-1/2 w-3 h-3 bg-lime-400 rounded-full blur-sm opacity-55"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [35, -35, 35],
             x: [12, -12, 12],
-            scale: [0.7, 1.3, 0.7]
+            scale: [0.7, 1.3, 0.7],
           }}
-          transition={{ 
+          transition={{
             duration: 17,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-96 left-20 w-5 h-5 bg-rose-400 rounded-full blur-sm opacity-40"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-50, 50, -50],
             x: [-30, 30, -30],
-            rotate: [45, 225, 405]
+            rotate: [45, 225, 405],
           }}
-          transition={{ 
+          transition={{
             duration: 26,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-48 right-1/2 w-2 h-2 bg-amber-400 rounded-full blur-sm opacity-65"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [22, -22, 22],
-            scale: [1.1, 0.9, 1.1]
+            scale: [1.1, 0.9, 1.1],
           }}
-          transition={{ 
+          transition={{
             duration: 21,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-20 left-2/3 w-3 h-3 bg-violet-400 rounded-full blur-sm opacity-50"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [-28, 28, -28],
             x: [18, -18, 18],
-            rotate: [120, 240, 360]
+            rotate: [120, 240, 360],
           }}
-          transition={{ 
+          transition={{
             duration: 23,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-36 left-3/5 w-4 h-4 bg-slate-400 rounded-full blur-sm opacity-35"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [32, -32, 32],
             x: [-22, 22, -22],
-            scale: [0.9, 1.1, 0.9]
+            scale: [0.9, 1.1, 0.9],
           }}
-          transition={{ 
+          transition={{
             duration: 25,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute bottom-72 right-2/3 w-6 h-6 bg-orange-300 rounded-full blur-sm opacity-25"
         />
 
         <div className="relative z-10 w-full px-4 md:px-6 lg:px-16 xl:px-24">
           <div className="text-center max-w-6xl mx-auto">
-            <motion.h1 
+            <motion.h1
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
@@ -343,7 +340,7 @@ const Home = () => {
               </span>
               <br />
               {isTypingComplete && (
-                <motion.span 
+                <motion.span
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.8 }}
@@ -354,7 +351,7 @@ const Home = () => {
               )}
             </motion.h1>
 
-            <motion.div 
+            <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.6 }}
@@ -371,7 +368,7 @@ const Home = () => {
                   Find Traders
                 </Link>
               </motion.div>
-              
+
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -385,49 +382,49 @@ const Home = () => {
               </motion.div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1, duration: 0.8 }}
               className="relative max-w-6xl mx-auto"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-red-600/5 to-orange-500/5 rounded-3xl blur-3xl"></div>
-              
+
               <div className="relative bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {[
-                    { 
-                      value: "<1s", 
-                      label: "Transaction Speed", 
-                      icon: Zap, 
+                    {
+                      value: "<1s",
+                      label: "Transaction Speed",
+                      icon: Zap,
                       color: "from-emerald-400 to-emerald-600",
                       bgColor: "bg-emerald-500/10",
-                      borderColor: "border-emerald-500/20"
+                      borderColor: "border-emerald-500/20",
                     },
-                    { 
-                      value: "100%", 
-                      label: "Security Rate", 
-                      icon: Shield, 
+                    {
+                      value: "100%",
+                      label: "Security Rate",
+                      icon: Shield,
                       color: "from-orange-400 to-orange-600",
                       bgColor: "bg-orange-500/10",
-                      borderColor: "border-orange-500/20"
+                      borderColor: "border-orange-500/20",
                     },
-                    { 
-                      value: "0", 
-                      label: "Scams Reported", 
-                      icon: Lock, 
+                    {
+                      value: "0",
+                      label: "Scams Reported",
+                      icon: Lock,
                       color: "from-red-400 to-red-600",
                       bgColor: "bg-red-500/10",
-                      borderColor: "border-red-500/20"
+                      borderColor: "border-red-500/20",
                     },
-                    { 
-                      value: "24/7", 
-                      label: "Live Support", 
-                      icon: MessageCircle, 
+                    {
+                      value: "24/7",
+                      label: "Live Support",
+                      icon: MessageCircle,
                       color: "from-blue-400 to-blue-600",
                       bgColor: "bg-blue-500/10",
-                      borderColor: "border-blue-500/20"
-                    }
+                      borderColor: "border-blue-500/20",
+                    },
                   ].map((stat, index) => (
                     <motion.div
                       key={index}
@@ -445,8 +442,8 @@ const Home = () => {
                       >
                         <stat.icon size={32} className="text-white" />
                       </motion.div>
-                      
-                      <motion.div 
+
+                      <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 1.6 + index * 0.1, duration: 0.5 }}
@@ -454,16 +451,18 @@ const Home = () => {
                       >
                         {stat.value}
                       </motion.div>
-                      
+
                       <div className="text-xs md:text-sm text-gray-300 font-medium">
                         {stat.label}
                       </div>
-                      
-                      <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}></div>
+
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
+                      ></div>
                     </motion.div>
                   ))}
                 </div>
-                
+
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-full"></div>
               </div>
             </motion.div>
@@ -473,9 +472,9 @@ const Home = () => {
 
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
-        
+
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-16 xl:px-24">
-          <motion.div 
+          <motion.div
             initial={{ y: 100, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true }}
@@ -483,7 +482,7 @@ const Home = () => {
             className="text-center mb-20"
           >
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 backdrop-blur-sm mb-6">
-              <motion.span 
+              <motion.span
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-3 h-3 bg-emerald-500 rounded-full mr-3"
@@ -492,7 +491,7 @@ const Home = () => {
                 What We Offer
               </span>
             </div>
-            
+
             <h2 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
               <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Fast & Secure
@@ -502,17 +501,19 @@ const Home = () => {
                 Trading
               </span>
             </h2>
-            
+
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Three core features that make crypto trading safe and lightning fast
+              Three core features that make crypto trading safe and lightning
+              fast
             </p>
           </motion.div>
-          
+
           <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
             {[
               {
                 title: "Instant Escrow",
-                description: "Sub-second fund locking with military-grade encryption",
+                description:
+                  "Sub-second fund locking with military-grade encryption",
                 delay: 0.2,
                 illustration: (
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center relative">
@@ -521,10 +522,10 @@ const Home = () => {
                       <div className="absolute bottom-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
                     </div>
                   </div>
-                )
+                ),
               },
               {
-                title: "Real-Time Security", 
+                title: "Real-Time Security",
                 description: "Live monitoring and instant fraud detection",
                 delay: 0.4,
                 illustration: (
@@ -534,7 +535,7 @@ const Home = () => {
                       <div className="absolute bottom-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
                   </div>
-                )
+                ),
               },
               {
                 title: "Zero-Delay Settlements",
@@ -548,8 +549,8 @@ const Home = () => {
                       <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-red-400 rounded-full"></div>
                     </div>
                   </div>
-                )
-              }
+                ),
+              },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -584,20 +585,20 @@ const Home = () => {
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#f5762c] via-[#e53825] to-[#f5762c]"></div>
         <div className="absolute inset-0 bg-black/20"></div>
-        
-        <motion.div 
-          animate={{ 
+
+        <motion.div
+          animate={{
             scale: [1, 1.2, 1],
-            rotate: [0, 180, 360]
+            rotate: [0, 180, 360],
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
           className="absolute top-20 left-20 w-32 h-32 bg-white/5 rounded-full blur-2xl"
         />
-        
+
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-16 xl:px-24 text-center">
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -607,7 +608,7 @@ const Home = () => {
               transition={{ duration: 0.8 }}
               className="inline-flex items-center px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8"
             >
-              <motion.span 
+              <motion.span
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-3 h-3 bg-white rounded-full mr-3"
@@ -616,15 +617,15 @@ const Home = () => {
                 Ready to Start?
               </span>
             </motion.div>
-            
-            <motion.h2 
+
+            <motion.h2
               initial={{ y: 100, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
               className="text-5xl md:text-6xl font-extrabold text-white mb-6"
             >
               Trade in Under
-              <motion.span 
+              <motion.span
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
@@ -633,8 +634,8 @@ const Home = () => {
                 60 Seconds
               </motion.span>
             </motion.h2>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ y: 50, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
@@ -642,7 +643,7 @@ const Home = () => {
             >
               Experience the fastest and most secure way to trade crypto
             </motion.p>
-            
+
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
@@ -657,10 +658,12 @@ const Home = () => {
                   to={walletState.isConnected ? "/dashboard" : "/login"}
                   className="bg-white hover:bg-gray-100 text-[#f5762c] font-bold py-4 px-12 rounded-2xl text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl min-w-[250px] block text-center"
                 >
-                  {walletState.isConnected ? "Go to Dashboard" : "Connect Wallet"}
+                  {walletState.isConnected
+                    ? "Go to Dashboard"
+                    : "Connect Wallet"}
                 </Link>
               </motion.div>
-              
+
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -677,7 +680,7 @@ const Home = () => {
         </div>
       </section>
 
-      <motion.footer 
+      <motion.footer
         initial={{ y: 100, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true }}
@@ -703,7 +706,7 @@ const Home = () => {
               <p className="text-gray-300 text-lg mb-6 leading-relaxed font-light">
                 Decentralized protection for P2P crypto traders.
               </p>
-              
+
               <div className="flex space-x-4 mt-8">
                 <a href="#" className="group">
                   <div className="w-12 h-12 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -712,7 +715,7 @@ const Home = () => {
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                     </svg>
                   </div>
                 </a>
@@ -723,7 +726,7 @@ const Home = () => {
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.096.119.111.225.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.174.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.096.119.111.225.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.174.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z" />
                     </svg>
                   </div>
                 </a>
@@ -734,13 +737,13 @@ const Home = () => {
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
+                      <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
                     </svg>
                   </div>
                 </a>
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-xl font-bold text-white mb-6 tracking-tight">
                 Product
@@ -772,7 +775,7 @@ const Home = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="text-xl font-bold text-white mb-6 tracking-tight">
                 Community
@@ -805,7 +808,7 @@ const Home = () => {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-white/10 mt-16 pt-8 text-center">
             <p className="text-gray-400 text-base font-light tracking-wide">
               &copy; 2025 TrustPeer.

@@ -15,11 +15,52 @@ export interface WalletConnection {
   network?: string
 }
 
+// Ethereum provider types
+interface EthereumProvider {
+  isMetaMask?: boolean
+  isTrust?: boolean
+  isTrustWallet?: boolean
+  request(args: { method: 'eth_requestAccounts' }): Promise<string[]>
+  request(args: { method: 'eth_chainId' }): Promise<string>
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>
+  on: (event: string, handler: (...args: unknown[]) => void) => void
+  removeListener: (event: string, handler: (...args: unknown[]) => void) => void
+  providers?: EthereumProvider[]
+}
+
+// Plug wallet types
+interface PlugWallet {
+  isConnected(): Promise<boolean>
+  requestConnect(): Promise<void>
+  agent: {
+    getPrincipal(): Promise<{ toString(): string }>
+  }
+}
+
+interface WindowPlugWallet {
+  ic?: {
+    plug?: PlugWallet
+  }
+}
+
+interface WindowEthereum extends Window {
+  ethereum?: EthereumProvider
+  trustWallet?: unknown
+}
+
+declare const window: WindowEthereum & WindowPlugWallet
+
+// ICP Identity types
+interface ICPIdentity {
+  getPrincipal(): { toString(): string }
+  [key: string]: unknown
+}
+
 export interface MultiWalletState {
   isConnected: boolean
   primaryWallet: WalletConnection | null
   connectedWallets: WalletConnection[]
-  icpIdentity?: any
+  icpIdentity?: ICPIdentity
 }
 
 class MultiWalletService {
@@ -29,15 +70,15 @@ class MultiWalletService {
     connectedWallets: []
   }
 
-  private getEthereumProvider(preferredWallet: WalletType): any {
+  private getEthereumProvider(preferredWallet: WalletType): EthereumProvider | null {
     if (typeof window === 'undefined') return null
     
-    const ethereum = (window as any).ethereum
+    const ethereum = (window as WindowEthereum).ethereum
     if (!ethereum) return null
 
     // If there are multiple providers, try to select the preferred one
     if (ethereum.providers && ethereum.providers.length > 0) {
-      const provider = ethereum.providers.find((p: any) => {
+      const provider = ethereum.providers.find((p: EthereumProvider) => {
         if (preferredWallet === WalletType.METAMASK) {
           return p.isMetaMask && !p.isTrust && !p.isTrustWallet
         } else if (preferredWallet === WalletType.TRUST_WALLET) {
@@ -82,7 +123,7 @@ class MultiWalletService {
       this.state.primaryWallet = connection
       this.state.connectedWallets.push(connection)
       this.state.isConnected = true
-      this.state.icpIdentity = authState.identity
+      this.state.icpIdentity = authState.identity as unknown as ICPIdentity | undefined
       
       return connection
     }
@@ -91,14 +132,14 @@ class MultiWalletService {
   }
 
   private async connectPlug(): Promise<WalletConnection> {
-    if (typeof window !== 'undefined' && (window as any).ic?.plug) {
+    if (typeof window !== 'undefined' && window.ic?.plug) {
       try {
-        const isConnected = await (window as any).ic.plug.isConnected()
+        const isConnected = await window.ic.plug.isConnected()
         if (!isConnected) {
-          await (window as any).ic.plug.requestConnect()
+          await window.ic.plug.requestConnect()
         }
         
-        const principal = await (window as any).ic.plug.agent.getPrincipal()
+        const principal = await window.ic.plug.agent.getPrincipal()
         const connection: WalletConnection = {
           type: WalletType.PLUG,
           address: principal.toString(),
@@ -149,7 +190,7 @@ class MultiWalletService {
 
       const chainId = await provider.request({
         method: 'eth_chainId'
-      })
+      }) as string
 
       const networkName = this.getNetworkName(chainId)
       
@@ -166,9 +207,9 @@ class MultiWalletService {
       }
       
       return connection
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('MetaMask connection error:', error)
-      throw new Error(`MetaMask connection failed: ${error.message}`)
+      throw new Error(`MetaMask connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -183,7 +224,7 @@ class MultiWalletService {
       // Check if Trust Wallet is specifically available
       const isTrustWallet = provider.isTrust || 
                            provider.isTrustWallet ||
-                           (window as any).trustWallet
+                           window.trustWallet
 
       if (!isTrustWallet) {
         if (provider.isMetaMask) {
@@ -203,7 +244,7 @@ class MultiWalletService {
 
       const chainId = await provider.request({
         method: 'eth_chainId'
-      })
+      }) as string
 
       const networkName = this.getNetworkName(chainId)
       
@@ -220,9 +261,9 @@ class MultiWalletService {
       }
       
       return connection
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Trust Wallet connection error:', error)
-      throw new Error(`Trust Wallet connection failed: ${error.message}`)
+      throw new Error(`Trust Wallet connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -243,7 +284,7 @@ class MultiWalletService {
     if (type === WalletType.INTERNET_IDENTITY) {
       const { authService } = await import('./auth.service')
       await authService.logout()
-      this.state.icpIdentity = null
+      this.state.icpIdentity = undefined
     }
   }
 
@@ -278,12 +319,13 @@ class MultiWalletService {
       case WalletType.INTERNET_IDENTITY:
         return true
       case WalletType.PLUG:
-        return !!(window as any).ic?.plug
+        return !!window.ic?.plug
       case WalletType.METAMASK:
-        return !!((window as any).ethereum?.isMetaMask)
-      case WalletType.TRUST_WALLET:
-        const provider = (window as any).ethereum
-        return !!(provider?.isTrust || provider?.isTrustWallet || (window as any).trustWallet)
+        return !!window.ethereum?.isMetaMask
+      case WalletType.TRUST_WALLET: {
+        const provider = window.ethereum
+        return !!(provider?.isTrust || provider?.isTrustWallet || window.trustWallet)
+      }
       case WalletType.STOIC:
         return false
       default:

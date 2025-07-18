@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ratingService } from '../Services/rating.service'
@@ -19,17 +19,12 @@ const RateTrader = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    checkWalletConnection()
-    loadTradeData()
-  }, [])
-
   const checkWalletConnection = () => {
     const walletState = multiWalletService.getState()
     setIsWalletConnected(walletState.isConnected)
   }
 
-  const loadTradeData = async () => {
+  const loadTradeData = useCallback(async () => {
     const tradeId = searchParams.get('tradeId')
     const traderAddr = searchParams.get('traderAddress')
     
@@ -48,7 +43,12 @@ const RateTrader = () => {
     } catch (error) {
       console.error('Failed to load trade data:', error)
     }
-  }
+  }, [searchParams])
+
+  useEffect(() => {
+    checkWalletConnection()
+    loadTradeData()
+  }, [loadTradeData])
 
   const handleRatingChange = (newRating: number) => {
     setRating(newRating)

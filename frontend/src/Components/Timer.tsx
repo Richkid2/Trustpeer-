@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 interface TimerProps {
@@ -16,10 +16,7 @@ const Timer = ({
   variant = 'default',
   size = 'md'
 }: TimerProps) => {
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
-  const [isExpired, setIsExpired] = useState(false)
-
-  function calculateTimeLeft() {
+  const calculateTimeLeft = useCallback(() => {
     const now = new Date().getTime()
     const end = endTime.getTime()
     const difference = end - now
@@ -34,7 +31,10 @@ const Timer = ({
       minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
       seconds: Math.floor((difference % (1000 * 60)) / 1000)
     }
-  }
+  }, [endTime])
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
+  const [isExpired, setIsExpired] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -49,7 +49,7 @@ const Timer = ({
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [endTime, isExpired, onExpire])
+  }, [endTime, isExpired, onExpire, calculateTimeLeft])
 
   const getVariantStyles = () => {
     switch (variant) {
