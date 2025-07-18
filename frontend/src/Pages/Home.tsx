@@ -36,7 +36,7 @@ const Home = () => {
 
     checkWalletConnection();
 
-    // Check every 2 seconds for wallet connection changes
+    // wallet connection changes
     const interval = setInterval(checkWalletConnection, 2000);
 
     return () => clearInterval(interval);

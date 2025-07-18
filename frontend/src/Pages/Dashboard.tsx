@@ -57,7 +57,6 @@ const Dashboard = () => {
 
     checkWalletAndLoadData()
     
-    // Listen for wallet changes with a longer interval to avoid rapid checks
     const interval = setInterval(() => {
       const newState = multiWalletService.getState()
       if (newState.isConnected !== walletState.isConnected) {
@@ -66,7 +65,7 @@ const Dashboard = () => {
           checkWalletAndLoadData()
         }
       }
-    }, 2000) // Check every 2 seconds instead of 1
+    }, 2000) 
 
     return () => clearInterval(interval)
   }, [walletState.isConnected])
