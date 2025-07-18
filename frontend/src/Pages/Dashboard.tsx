@@ -35,21 +35,18 @@ const Dashboard = () => {
       
       if (state.isConnected && state.primaryWallet?.address) {
         try {
-          // Load trader profile
           const traderProfile = await ratingService.getTraderProfile(state.primaryWallet.address)
           setProfile(traderProfile)
           
-          // Load recent trades
           const trades = await escrowService.getAllTrades()
           const userTrades = trades.filter((trade: TradeDetails) => 
             trade.buyer === state.primaryWallet?.address || 
             trade.seller === state.primaryWallet?.address
           )
-          setRecentTrades(userTrades.slice(0, 5)) // Show last 5 trades
+          setRecentTrades(userTrades.slice(0, 5))
           
-          // Load recent ratings
           const ratings = await ratingService.getTraderRatings(state.primaryWallet.address)
-          setRecentRatings(ratings.slice(0, 5)) // Show last 5 ratings
+          setRecentRatings(ratings.slice(0, 5))
           
         } catch (error) {
           console.error('Error loading dashboard data:', error)

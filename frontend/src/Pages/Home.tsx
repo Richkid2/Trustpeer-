@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { 
+  Zap, 
+  Shield, 
+  Lock, 
+  MessageCircle 
+} from "lucide-react";
 import { multiWalletService } from "../Services/wallet.service";
 import type { MultiWalletState } from "../Services/wallet.service";
 
@@ -41,7 +47,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      {/* Header */}
       <motion.header 
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -58,7 +63,7 @@ const Home = () => {
             >
               <div className="relative">
                 <img
-                  src="/src/assets/images/trustpeer-logo.png"
+                  src="/trustpeer-logo.png"
                   alt="TrustPeer"
                   className="h-10 w-auto"
                 />
@@ -99,9 +104,7 @@ const Home = () => {
         </div>
       </motion.header>
 
-      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-32">
-        {/* Animated Background */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -109,7 +112,7 @@ const Home = () => {
           className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-red-600/20"
         />
         
-        {/* Floating Elements */}
+        {/* Floating animation elements */}
         <motion.div 
           animate={{ 
             y: [-20, 20, -20],
@@ -147,7 +150,6 @@ const Home = () => {
           className="absolute bottom-32 left-1/3 w-3 h-3 bg-white rounded-full blur-sm"
         />
         
-        {/* Additional Floating Elements */}
         <motion.div 
           animate={{ 
             y: [-40, 40, -40],
@@ -329,7 +331,6 @@ const Home = () => {
 
         <div className="relative z-10 w-full px-4 md:px-6 lg:px-16 xl:px-24">
           <div className="text-center max-w-6xl mx-auto">
-            {/* Main Title */}
             <motion.h1 
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -353,7 +354,6 @@ const Home = () => {
               )}
             </motion.h1>
 
-            {/* Action Buttons */}
             <motion.div 
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -385,24 +385,21 @@ const Home = () => {
               </motion.div>
             </motion.div>
 
-            {/* Stats Section */}
             <motion.div 
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1, duration: 0.8 }}
               className="relative max-w-6xl mx-auto"
             >
-              {/* Background blur effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-red-600/5 to-orange-500/5 rounded-3xl blur-3xl"></div>
               
-              {/* Stats container */}
               <div className="relative bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {[
                     { 
                       value: "<1s", 
                       label: "Transaction Speed", 
-                      icon: "⚡", 
+                      icon: Zap, 
                       color: "from-emerald-400 to-emerald-600",
                       bgColor: "bg-emerald-500/10",
                       borderColor: "border-emerald-500/20"
@@ -410,7 +407,7 @@ const Home = () => {
                     { 
                       value: "100%", 
                       label: "Security Rate", 
-                      icon: "🛡️", 
+                      icon: Shield, 
                       color: "from-orange-400 to-orange-600",
                       bgColor: "bg-orange-500/10",
                       borderColor: "border-orange-500/20"
@@ -418,7 +415,7 @@ const Home = () => {
                     { 
                       value: "0", 
                       label: "Scams Reported", 
-                      icon: "🔒", 
+                      icon: Lock, 
                       color: "from-red-400 to-red-600",
                       bgColor: "bg-red-500/10",
                       borderColor: "border-red-500/20"
@@ -426,7 +423,7 @@ const Home = () => {
                     { 
                       value: "24/7", 
                       label: "Live Support", 
-                      icon: "💬", 
+                      icon: MessageCircle, 
                       color: "from-blue-400 to-blue-600",
                       bgColor: "bg-blue-500/10",
                       borderColor: "border-blue-500/20"
@@ -440,17 +437,15 @@ const Home = () => {
                       whileHover={{ scale: 1.05, y: -5 }}
                       className={`relative group ${stat.bgColor} ${stat.borderColor} border rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-xl`}
                     >
-                      {/* Icon */}
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 1.4 + index * 0.1, duration: 0.5 }}
-                        className="text-3xl mb-3"
+                        className="text-3xl mb-3 flex justify-center"
                       >
-                        {stat.icon}
+                        <stat.icon size={32} className="text-white" />
                       </motion.div>
                       
-                      {/* Value */}
                       <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -460,18 +455,15 @@ const Home = () => {
                         {stat.value}
                       </motion.div>
                       
-                      {/* Label */}
                       <div className="text-xs md:text-sm text-gray-300 font-medium">
                         {stat.label}
                       </div>
                       
-                      {/* Hover effect */}
                       <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}></div>
                     </motion.div>
                   ))}
                 </div>
                 
-                {/* Bottom accent line */}
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-full"></div>
               </div>
             </motion.div>
@@ -479,7 +471,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
         
@@ -590,12 +581,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#f5762c] via-[#e53825] to-[#f5762c]"></div>
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* Floating Animation */}
         <motion.div 
           animate={{ 
             scale: [1, 1.2, 1],
@@ -688,7 +677,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <motion.footer 
         initial={{ y: 100, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
@@ -702,7 +690,7 @@ const Home = () => {
               <div className="flex items-center space-x-4 mb-6">
                 <div className="relative">
                   <img
-                    src="/src/assets/images/trustpeer-logo.png"
+                    src="/trustpeer-logo.png"
                     alt="TrustPeer"
                     className="h-10 w-auto"
                   />
@@ -716,7 +704,6 @@ const Home = () => {
                 Decentralized protection for P2P crypto traders.
               </p>
               
-              {/* Social Links */}
               <div className="flex space-x-4 mt-8">
                 <a href="#" className="group">
                   <div className="w-12 h-12 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
