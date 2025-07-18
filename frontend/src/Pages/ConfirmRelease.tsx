@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { escrowService } from '../Services/escrow.service'
@@ -15,17 +15,12 @@ const ConfirmRelease = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    checkWalletConnection()
-    loadTradeData()
-  }, [])
-
   const checkWalletConnection = () => {
     const walletState = multiWalletService.getState()
     setIsWalletConnected(walletState.isConnected)
   }
 
-  const loadTradeData = async () => {
+  const loadTradeData = useCallback(async () => {
     const tradeId = searchParams.get('tradeId')
     if (!tradeId) {
       setError('Trade ID not provided')
@@ -46,7 +41,12 @@ const ConfirmRelease = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [searchParams])
+
+  useEffect(() => {
+    checkWalletConnection()
+    loadTradeData()
+  }, [loadTradeData])
 
   const handleConfirmRelease = async () => {
     if (!trade || !isConfirmed) return
