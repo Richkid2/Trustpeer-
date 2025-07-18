@@ -1,23 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { authService } from '../Services/auth.service'
 import type { AuthState } from '../Services/auth.service'
-
-interface AuthContextType extends AuthState {
-  login: () => Promise<void>
-  logout: () => Promise<void>
-  isLoading: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+import { AuthContext, type AuthContextType } from './AuthContext'
 
 interface AuthProviderProps {
   children: ReactNode

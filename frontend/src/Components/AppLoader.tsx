@@ -6,11 +6,9 @@ const AppLoader = () => {
   const [imageError, setImageError] = useState(false)
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // Try fallback to public folder first
     if (!e.currentTarget.src.includes('/trustpeer-logo.png')) {
       e.currentTarget.src = '/trustpeer-logo.png'
     } else {
-      // If both sources fail, show text logo
       setImageError(true)
     }
   }
