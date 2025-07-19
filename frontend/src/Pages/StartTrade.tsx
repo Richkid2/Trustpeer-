@@ -285,9 +285,6 @@ const StartTrade = () => {
                 Start New Trade
               </span>
             </h1>
-            <p className="text-slate-300 font-kansas-light text-lg max-w-2xl mx-auto leading-relaxed">
-              Create a secure P2P crypto trade with automatic escrow protection powered by blockchain technology
-            </p>
             
             {/* Feature Badges */}
             <div className="flex flex-wrap justify-center gap-4 mt-8">

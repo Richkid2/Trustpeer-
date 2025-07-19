@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Zap, Shield, Lock, MessageCircle } from "lucide-react";
+import { Zap, Shield, Lock, MessageCircle, Rocket, Search } from "lucide-react";
 import { multiWalletService } from "../Services/wallet.service";
 import type { MultiWalletState } from "../Services/wallet.service";
 
@@ -143,12 +143,12 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
                     
                     <span className="relative z-10 flex items-center gap-2">
-                      <motion.span
+                      <motion.div
                         animate={{ rotate: [0, 10, -10, 0] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                       >
-                        🚀
-                      </motion.span>
+                        <Rocket size={20} className="text-white" />
+                      </motion.div>
                       Connect Wallet
                     </span>
                   </motion.button>
@@ -435,13 +435,12 @@ const Home = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
                   
                   <div className="relative z-10 flex items-center justify-center gap-3">
-                    <motion.span
+                    <motion.div
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
-                      className="text-2xl"
                     >
-                      🔍
-                    </motion.span>
+                      <Search size={24} className="text-white" />
+                    </motion.div>
                     Find Traders
                   </div>
                   
@@ -473,13 +472,12 @@ const Home = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 transition-all duration-700"></div>
                   
                   <div className="relative z-10 flex items-center justify-center gap-3">
-                    <motion.span
+                    <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                      className="text-2xl"
                     >
-                      🚀
-                    </motion.span>
+                      <Rocket size={24} className="text-white" />
+                    </motion.div>
                     Start Trade
                   </div>
                 </Link>
@@ -579,13 +577,19 @@ const Home = () => {
 
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-16 xl:px-24">
           <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-center mb-20"
           >
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 backdrop-blur-sm mb-6">
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 backdrop-blur-sm mb-6"
+            >
               <motion.span
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -594,9 +598,15 @@ const Home = () => {
               <span className="text-sm font-medium text-emerald-400">
                 What We Offer
               </span>
-            </div>
+            </motion.div>
 
-            <h2 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight"
+            >
               <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Fast & Secure
               </span>
@@ -604,12 +614,18 @@ const Home = () => {
               <span className="bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
                 Trading
               </span>
-            </h2>
+            </motion.h2>
 
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+            >
               Three core features that make crypto trading safe and lightning
               fast
-            </p>
+            </motion.p>
           </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
@@ -618,68 +634,85 @@ const Home = () => {
                 title: "Instant Escrow",
                 description:
                   "Sub-second fund locking with military-grade encryption",
-                delay: 0.2,
-                illustration: (
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center relative">
-                    <div className="w-8 h-8 bg-white rounded-lg relative">
-                      <div className="absolute top-1 left-1 w-6 h-6 bg-emerald-500 rounded-md"></div>
-                      <div className="absolute bottom-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
-                    </div>
-                  </div>
-                ),
+                delay: 0.1,
+                icon: Lock,
+                gradient: "from-emerald-400 to-emerald-600",
+                iconBg: "bg-emerald-500/10",
+                iconColor: "text-emerald-400"
               },
               {
                 title: "Real-Time Security",
                 description: "Live monitoring and instant fraud detection",
-                delay: 0.4,
-                illustration: (
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center relative">
-                    <div className="w-10 h-10 bg-white rounded-full relative">
-                      <div className="absolute top-2 left-2 w-6 h-6 bg-blue-500 rounded-full"></div>
-                      <div className="absolute bottom-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                ),
+                delay: 0.2,
+                icon: Shield,
+                gradient: "from-blue-400 to-blue-600",
+                iconBg: "bg-blue-500/10",
+                iconColor: "text-blue-400"
               },
               {
                 title: "Zero-Delay Settlements",
                 description: "Automated releases the moment payment confirms",
-                delay: 0.6,
-                illustration: (
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center relative">
-                    <div className="w-10 h-10 bg-white rounded-full relative">
-                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-purple-500 rounded-full"></div>
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full"></div>
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-red-400 rounded-full"></div>
-                    </div>
-                  </div>
-                ),
+                delay: 0.3,
+                icon: Zap,
+                gradient: "from-purple-400 to-purple-600",
+                iconBg: "bg-purple-500/10",
+                iconColor: "text-purple-400"
               },
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                initial={{ y: 100, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: feature.delay, duration: 0.8 }}
-                whileHover={{ y: -10, scale: 1.02 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: feature.delay, 
+                  ease: "easeOut"
+                }}
+                whileHover={{ 
+                  y: -5, 
+                  scale: 1.02,
+                  transition: { duration: 0.2 }
+                }}
                 className="glass-effect border border-white/10 rounded-3xl p-8 text-center hover:border-white/20 transition-all duration-300"
               >
                 <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: feature.delay + 0.2, duration: 0.5 }}
+                  transition={{ 
+                    duration: 0.6, 
+                    delay: feature.delay + 0.2, 
+                    type: "spring",
+                    stiffness: 200
+                  }}
                   className="flex justify-center mb-6"
                 >
-                  {feature.illustration}
+                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center relative group`}>
+                    <feature.icon size={32} className="text-white relative z-10" />
+                    <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
                 </motion.div>
-                <h3 className="text-2xl font-bold text-white mb-4">
+                
+                <motion.h3 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: feature.delay + 0.4 }}
+                  className="text-2xl font-bold text-white mb-4"
+                >
                   {feature.title}
-                </h3>
-                <p className="text-gray-300 text-lg leading-relaxed">
+                </motion.h3>
+                
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: feature.delay + 0.5 }}
+                  className="text-gray-300 text-lg leading-relaxed"
+                >
                   {feature.description}
-                </p>
+                </motion.p>
               </motion.div>
             ))}
           </div>

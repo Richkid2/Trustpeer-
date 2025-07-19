@@ -121,14 +121,6 @@ const Login = () => {
             >
               Welcome to TrustPeer
             </motion.h1>
-            <motion.p 
-              className="text-slate-400 font-kansas-light text-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
-              Secure <span className="text-cyan-400 font-kansas-medium">P2P trading</span> on Web3
-            </motion.p>
           </motion.div>
 
           {/* Connected Status */}
