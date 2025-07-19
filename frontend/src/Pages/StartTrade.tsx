@@ -22,7 +22,7 @@ type PaymentMethod = 'bank_transfer'
 
 const StartTrade = () => {
   const [formData, setFormData] = useState({
-    amount: '',
+    usdAmount: '',
     currency: 'USDT',
     tradeType: 'buy' as TradeType,
     paymentMethod: 'bank_transfer' as PaymentMethod,
@@ -32,15 +32,17 @@ const StartTrade = () => {
   const [error, setError] = useState('');
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [nairaAmount, setNairaAmount] = useState(0);
+  const [cryptoAmount, setCryptoAmount] = useState('0');
   const navigate = useNavigate();
 
-  // Exchange rates (in a real app, this would come from an API)
-  const EXCHANGE_RATES = {
-    USDT: 1650,  // 1 USDT = 1650 NGN
-    BTC: 95000000,  // 1 BTC = 95M NGN
-    ETH: 5200000,   // 1 ETH = 5.2M NGN
-    BNB: 850000,    // 1 BNB = 850k NGN
-    USDC: 1645      // 1 USDC = 1645 NGN
+  // USD to NGN rate and crypto prices in USD
+  const USD_TO_NGN_RATE = 1650; // 1 USD = 1650 NGN
+  const CRYPTO_PRICES_USD = {
+    USDT: 1,      // 1 USDT = 1 USD
+    BTC: 57575,   // 1 BTC = 57,575 USD
+    ETH: 3152,    // 1 ETH = 3,152 USD  
+    BNB: 515,     // 1 BNB = 515 USD
+    USDC: 1       // 1 USDC = 1 USD
   };
 
   // Currency options
@@ -59,11 +61,17 @@ const StartTrade = () => {
   }, [])
 
   useEffect(() => {
-    // Calculate Naira amount whenever amount or currency changes
-    const cryptoAmount = parseFloat(formData.amount) || 0;
-    const rate = EXCHANGE_RATES[formData.currency as keyof typeof EXCHANGE_RATES] || 0;
-    setNairaAmount(cryptoAmount * rate);
-  }, [formData.amount, formData.currency])
+    // Calculate crypto amount and Naira amount whenever USD amount or currency changes
+    const usdValue = parseFloat(formData.usdAmount) || 0;
+    const cryptoPrice = CRYPTO_PRICES_USD[formData.currency as keyof typeof CRYPTO_PRICES_USD] || 1;
+    
+    // Calculate crypto amount with high precision
+    const calculatedCryptoAmount = usdValue / cryptoPrice;
+    setCryptoAmount(calculatedCryptoAmount.toFixed(12)); // High precision for small amounts
+    
+    // Calculate Naira amount
+    setNairaAmount(usdValue * USD_TO_NGN_RATE);
+  }, [formData.usdAmount, formData.currency])
 
   const checkWalletConnection = () => {
     const walletState = multiWalletService.getState();
@@ -87,8 +95,8 @@ const StartTrade = () => {
       return
     }
 
-    if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setError(`Please enter a valid ${formData.currency} amount`)
+    if (!formData.usdAmount || parseFloat(formData.usdAmount) <= 0) {
+      setError('Please enter a valid USD amount')
       return
     }
 
@@ -104,11 +112,11 @@ const StartTrade = () => {
       // Create trade with automatic escrow
       const tradeRequest: CreateTradeRequest = {
         partnerAddress: formData.buyerAddress,
-        amount: formData.amount,
+        amount: cryptoAmount, // Use calculated crypto amount
         currency: formData.currency,
         tradeType: formData.tradeType,
         paymentMethod: formData.paymentMethod,
-        terms: `${formData.amount} ${formData.currency} for ₦${nairaAmount.toLocaleString()} via ${formData.paymentMethod}`
+        terms: `${cryptoAmount} ${formData.currency} (${formData.usdAmount} USD) for ₦${nairaAmount.toLocaleString()} via ${formData.paymentMethod}`
       };
 
       const trade = await escrowService.createTrade(tradeRequest)
@@ -465,47 +473,60 @@ const StartTrade = () => {
                         </div>
                       </motion.div>
 
-                      {/* Amount Input */}
+                      {/* USD Amount Input */}
                       <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 }}
                       >
                         <label className="block text-lg font-kansas-medium text-white mb-4">
-                          {formData.currency} Amount
+                          USD Amount
                         </label>
                         <div className="relative">
                           <input
                             type="number"
-                            name="amount"
-                            value={formData.amount}
+                            name="usdAmount"
+                            value={formData.usdAmount}
                             onChange={handleInputChange}
-                            step={formData.currency === 'BTC' ? '0.00000001' : formData.currency === 'ETH' ? '0.000001' : '0.01'}
+                            step="0.01"
                             min="0"
                             className="w-full px-6 py-4 pr-20 bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 text-white text-2xl font-kansas-bold placeholder-slate-400"
                             placeholder="0.00"
                           />
                           <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
-                            <div className={`${
-                              formData.currency === 'BTC' ? 'bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-orange-500/30' :
-                              formData.currency === 'ETH' ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30' :
-                              formData.currency === 'BNB' ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/30' :
-                              formData.currency === 'USDC' ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30' :
-                              'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-emerald-500/30'
-                            } border rounded-full px-3 py-1`}>
-                              <span className={`${
+                            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full px-3 py-1">
+                              <span className="text-green-400 font-kansas-medium text-sm">USD</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Crypto Amount Display */}
+                        {formData.usdAmount && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-4 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl backdrop-blur-sm"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-300 font-kansas-light">Crypto Amount</span>
+                              <span className={`font-kansas-bold text-xl ${
                                 formData.currency === 'BTC' ? 'text-orange-400' :
                                 formData.currency === 'ETH' ? 'text-blue-400' :
                                 formData.currency === 'BNB' ? 'text-yellow-400' :
                                 formData.currency === 'USDC' ? 'text-cyan-400' :
                                 'text-emerald-400'
-                              } font-kansas-medium text-sm`}>{formData.currency}</span>
+                              }`}>
+                                {cryptoAmount} {formData.currency}
+                              </span>
                             </div>
-                          </div>
-                        </div>
-                        
+                            <div className="text-xs text-slate-400 mt-2 font-kansas-light">
+                              Rate: 1 {formData.currency} = ${CRYPTO_PRICES_USD[formData.currency as keyof typeof CRYPTO_PRICES_USD]?.toLocaleString() || 'N/A'} USD
+                            </div>
+                          </motion.div>
+                        )}
+
                         {/* Naira Conversion Display */}
-                        {formData.amount && (
+                        {formData.usdAmount && (
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -518,7 +539,7 @@ const StartTrade = () => {
                               </span>
                             </div>
                             <div className="text-xs text-slate-400 mt-2 font-kansas-light">
-                              Exchange Rate: 1 {formData.currency} = ₦{EXCHANGE_RATES[formData.currency as keyof typeof EXCHANGE_RATES]?.toLocaleString() || 'N/A'}
+                              Exchange Rate: 1 USD = ₦{USD_TO_NGN_RATE.toLocaleString()}
                             </div>
                           </motion.div>
                         )}
@@ -583,7 +604,7 @@ const StartTrade = () => {
                       </motion.div>
 
                       {/* Trade Summary */}
-                      {formData.amount && formData.buyerAddress && (
+                      {formData.usdAmount && formData.buyerAddress && (
                         <motion.div
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -604,7 +625,8 @@ const StartTrade = () => {
                               <div className="space-y-4">
                                 {[
                                   { label: "Type", value: `${formData.tradeType.toUpperCase()} ${formData.currency}` },
-                                  { label: "Amount", value: `${formData.amount} ${formData.currency}` },
+                                  { label: "USD Amount", value: `$${formData.usdAmount}` },
+                                  { label: "Crypto Amount", value: `${cryptoAmount} ${formData.currency}` },
                                   { label: "Naira Value", value: `₦${nairaAmount.toLocaleString()}` },
                                   { label: "Payment", value: "Bank Transfer" },
                                 ].map((item) => (
@@ -648,7 +670,7 @@ const StartTrade = () => {
                   >
                     <motion.button
                       type="submit"
-                      disabled={isLoading || !formData.amount || !formData.buyerAddress}
+                      disabled={isLoading || !formData.usdAmount || !formData.buyerAddress}
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                       className="group relative w-full bg-gradient-to-r from-emerald-500/20 to-blue-600/20 hover:from-emerald-500/30 hover:to-blue-600/30 disabled:from-slate-600/20 disabled:to-slate-500/20 border border-emerald-500/30 hover:border-emerald-400/50 disabled:border-slate-500/30 backdrop-blur-sm text-white font-kansas-medium py-5 px-8 rounded-2xl transition-all duration-300 shadow-lg overflow-hidden"
@@ -669,7 +691,7 @@ const StartTrade = () => {
                         ) : (
                           <>
                             <ArrowRight className="w-6 h-6 mr-3 group-hover:translate-x-1 transition-transform duration-300" />
-                            <span>Start Trade & Open Escrow</span>
+                            <span>Start Trade</span>
                           </>
                         )}
                       </div>

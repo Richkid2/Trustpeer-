@@ -49,6 +49,25 @@ const EscrowProgress = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
+  // Helper function to format crypto amount with appropriate precision
+  const formatCryptoAmount = (amount: string): string => {
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount)) return '0';
+    
+    // For very small amounts, show more decimal places
+    if (numAmount < 0.001) {
+      return numAmount.toFixed(12);
+    }
+    // For small amounts, show moderate decimal places  
+    else if (numAmount < 1) {
+      return numAmount.toFixed(8);
+    }
+    // For larger amounts, show fewer decimal places
+    else {
+      return numAmount.toFixed(6);
+    }
+  };
+
   const checkWalletConnection = () => {
     const walletState = multiWalletService.getState()
     setIsWalletConnected(walletState.isConnected)
@@ -461,7 +480,7 @@ const EscrowProgress = () => {
                   className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
                 >
                   <p className="text-slate-400 text-sm mb-2 font-kansas-medium">{currency} Amount</p>
-                  <p className="text-white text-3xl font-kansas-black">{trade.amount} {currency}</p>
+                  <p className="text-white text-3xl font-kansas-black">{formatCryptoAmount(trade.amount)} {currency}</p>
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
@@ -797,7 +816,7 @@ const EscrowProgress = () => {
                   </motion.div>
                   <div>
                     <p className="text-white font-kansas-bold mb-1">🔐 Escrow Protection</p>
-                    <p className="text-slate-300 text-sm font-kansas-light">Your {trade.amount} {currency} is safely locked in smart contract escrow</p>
+                    <p className="text-slate-300 text-sm font-kansas-light">Your {formatCryptoAmount(trade.amount)} {currency} is safely locked in smart contract escrow</p>
                   </div>
                 </motion.div>
                 
