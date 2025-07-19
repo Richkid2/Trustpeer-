@@ -1,6 +1,23 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { 
+  BarChart3, 
+  Briefcase, 
+  Star, 
+  Settings, 
+  Trophy, 
+  DollarSign, 
+  Rocket, 
+  Search, 
+  FileText, 
+  CheckCircle, 
+  Clock, 
+  AlertTriangle,
+  Construction,
+  ArrowLeft,
+  LogOut
+} from 'lucide-react'
 import { multiWalletService } from '../Services/wallet.service'
 import { ratingService } from '../Services/rating.service'
 import { escrowService } from '../Services/escrow.service'
@@ -81,10 +98,10 @@ const Dashboard = () => {
 
   const getTradeStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return '✅'
-      case 'active': return '🔄'
-      case 'disputed': return '⚠️'
-      default: return '⏳'
+      case 'completed': return <CheckCircle className="w-4 h-4 text-green-400" />
+      case 'active': return <Clock className="w-4 h-4 text-blue-400" />
+      case 'disputed': return <AlertTriangle className="w-4 h-4 text-red-400" />
+      default: return <Clock className="w-4 h-4 text-yellow-400" />
     }
   }
 
@@ -173,9 +190,7 @@ const Dashboard = () => {
                   onClick={() => navigate('/')}
                   className="group p-3 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]"
                 >
-                  <svg className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
+                  <ArrowLeft className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors duration-300" />
                 </motion.button>
                 <div>
                   <motion.h1 
@@ -219,10 +234,10 @@ const Dashboard = () => {
         >
           <div className="flex space-x-2 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-2xl rounded-3xl p-2 border border-slate-700/30 shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-x-auto">
             {[
-              { id: 'overview', label: 'Overview', icon: '📊', gradient: 'from-blue-500 to-cyan-500' },
-              { id: 'trades', label: 'Trades', icon: '💼', gradient: 'from-purple-500 to-pink-500' },
-              { id: 'ratings', label: 'Ratings', icon: '⭐', gradient: 'from-yellow-500 to-orange-500' },
-              { id: 'settings', label: 'Settings', icon: '⚙️', gradient: 'from-green-500 to-emerald-500' }
+              { id: 'overview', label: 'Overview', icon: BarChart3, gradient: 'from-blue-500 to-cyan-500' },
+              { id: 'trades', label: 'Trades', icon: Briefcase, gradient: 'from-purple-500 to-pink-500' },
+              { id: 'ratings', label: 'Ratings', icon: Star, gradient: 'from-yellow-500 to-orange-500' },
+              { id: 'settings', label: 'Settings', icon: Settings, gradient: 'from-green-500 to-emerald-500' }
             ].map((tab, index) => (
               <motion.button
                 key={tab.id}
@@ -238,13 +253,13 @@ const Dashboard = () => {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <motion.span 
-                  className="text-lg sm:text-xl"
-                  animate={activeTab === tab.id ? { rotate: [0, 10, -10, 0] } : {}}
+                <motion.div 
+                  className={`w-6 h-6 ${activeTab === tab.id ? 'text-white' : 'text-slate-400 group-hover:text-white'} transition-colors duration-300`}
+                  animate={activeTab === tab.id ? { scale: [1, 1.1, 1] } : {}}
                   transition={{ duration: 0.5 }}
                 >
-                  {tab.icon}
-                </motion.span>
+                  <tab.icon className="w-6 h-6" />
+                </motion.div>
                 <span className="hidden sm:inline font-kansas-medium">{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div
@@ -274,7 +289,7 @@ const Dashboard = () => {
                   label: 'Total Trades', 
                   value: profile?.totalTrades || 0, 
                   subtext: `+${recentTrades.length} this month`, 
-                  icon: '💼', 
+                  icon: Briefcase, 
                   gradient: 'from-blue-600 to-cyan-500',
                   glowColor: 'blue'
                 },
@@ -282,7 +297,7 @@ const Dashboard = () => {
                   label: 'Trust Score', 
                   value: profile?.trustScore || 0, 
                   subtext: `Based on ${profile?.totalRatings || 0} ratings`, 
-                  icon: '⭐', 
+                  icon: Trophy, 
                   gradient: 'from-yellow-500 to-orange-500',
                   glowColor: 'yellow'
                 },
@@ -290,7 +305,7 @@ const Dashboard = () => {
                   label: 'Total Volume', 
                   value: formatAmount(profile?.totalTrades ? profile.totalTrades * 1000 : 0), 
                   subtext: 'All time', 
-                  icon: '💰', 
+                  icon: DollarSign, 
                   gradient: 'from-purple-600 to-pink-500',
                   glowColor: 'purple'
                 }
@@ -318,11 +333,15 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between mb-6">
                       <div className="text-slate-400 font-kansas-medium text-sm tracking-wide uppercase">{stat.label}</div>
                       <motion.div 
-                        className="text-3xl"
-                        animate={{ rotate: [0, 10, -10, 0] }}
+                        className={`w-8 h-8 ${
+                          stat.glowColor === 'blue' ? 'text-blue-400' : 
+                          stat.glowColor === 'yellow' ? 'text-yellow-400' : 
+                          'text-purple-400'
+                        }`}
+                        animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                       >
-                        {stat.icon}
+                        <stat.icon className="w-8 h-8" />
                       </motion.div>
                     </div>
                     <div className="text-4xl font-kansas-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-cyan-200 group-hover:bg-clip-text transition-all duration-300">
@@ -396,13 +415,13 @@ const Dashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
                     
                     <div className="relative z-10 flex items-center justify-center gap-3">
-                      <motion.span
-                        animate={{ rotate: [0, 10, -10, 0] }}
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
-                        className="text-2xl"
+                        className="text-cyan-400"
                       >
-                        🚀
-                      </motion.span>
+                        <Rocket className="w-6 h-6" />
+                      </motion.div>
                       Start New Trade
                     </div>
                     
@@ -430,13 +449,13 @@ const Dashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-600/20 to-slate-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     <div className="relative z-10 flex items-center justify-center gap-3">
-                      <motion.span
+                      <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                        className="text-2xl"
+                        className="text-slate-300"
                       >
-                        🔍
-                      </motion.span>
+                        <Search className="w-6 h-6" />
+                      </motion.div>
                       Find Traders
                     </div>
                   </motion.button>
@@ -471,12 +490,12 @@ const Dashboard = () => {
                       >
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <motion.span 
-                              className="text-lg"
+                            <motion.div 
+                              className="flex-shrink-0"
                               whileHover={{ scale: 1.2, rotate: 10 }}
                             >
                               {getTradeStatusIcon(trade.status)}
-                            </motion.span>
+                            </motion.div>
                             <span className="text-white font-kansas-medium">Trade #{trade.id.slice(0, 8)}</span>
                           </div>
                           <span className={`px-3 py-1 rounded-full text-xs font-kansas-bold uppercase tracking-wide ${getTradeStatusColor(trade.status)} bg-current/10`}>
@@ -497,11 +516,11 @@ const Dashboard = () => {
                       className="text-center py-12 text-slate-400"
                     >
                       <motion.div 
-                        className="text-6xl mb-4"
-                        animate={{ rotate: [0, 10, -10, 0] }}
+                        className="text-slate-500 mb-4 flex justify-center"
+                        animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 3, repeat: Infinity }}
                       >
-                        📋
+                        <FileText className="w-16 h-16" />
                       </motion.div>
                       <div className="font-kansas-medium">No trades yet</div>
                       <div className="text-sm text-slate-500 mt-2">Start trading to see your history here</div>
@@ -550,11 +569,11 @@ const Dashboard = () => {
                       className="text-center py-12 text-slate-400"
                     >
                       <motion.div 
-                        className="text-6xl mb-4"
+                        className="text-slate-500 mb-4 flex justify-center"
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
-                        ⭐
+                        <Star className="w-16 h-16" />
                       </motion.div>
                       <div className="font-kansas-medium">No ratings yet</div>
                       <div className="text-sm text-slate-500 mt-2">Complete trades to earn ratings</div>
@@ -596,9 +615,10 @@ const Dashboard = () => {
                   </div>
                   <motion.div 
                     whileHover={{ scale: 1.05 }}
-                    className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-2xl text-green-300 text-sm font-kansas-medium backdrop-blur-sm"
+                    className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-2xl text-green-300 text-sm font-kansas-medium backdrop-blur-sm flex items-center gap-2"
                   >
-                    ✅ Connected
+                    <CheckCircle className="w-4 h-4" />
+                    Connected
                   </motion.div>
                 </motion.div>
                 
@@ -638,7 +658,7 @@ const Dashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
                     <div className="relative z-10 flex items-center gap-2">
-                      <span>🚪</span>
+                      <LogOut className="w-5 h-5" />
                       Logout
                     </div>
                   </motion.button>
@@ -657,11 +677,11 @@ const Dashboard = () => {
             className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl p-12 border border-slate-700/50 text-center shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           >
             <motion.div 
-              className="text-8xl mb-6"
-              animate={{ rotate: [0, 5, -5, 0] }}
+              className="text-slate-500 mb-6 flex justify-center"
+              animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              🚧
+              <Construction className="w-20 h-20" />
             </motion.div>
             <h3 className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent mb-4">
               Coming Soon
