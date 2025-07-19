@@ -43,57 +43,115 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="border-b border-white/10"
+        transition={{ duration: 0.8 }}
+        className="relative z-20 border-b border-slate-700/30 backdrop-blur-2xl bg-slate-900/20"
       >
         <div className="w-full px-4 md:px-6 lg:px-16 xl:px-24">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="flex items-center space-x-3"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
+              className="flex items-center space-x-4"
             >
-              <div className="relative">
-                <img
+              <div className="relative group">
+                <motion.img
                   src="/trustpeer-logo.png"
                   alt="TrustPeer"
-                  className="h-10 w-auto"
+                  className="h-12 w-auto relative z-10"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ duration: 0.3 }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-600 rounded-full blur-xl opacity-30"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 to-blue-600/30 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-150"></div>
               </div>
-              <span className="text-2xl font-bold text-gradient-primary">
+              <motion.span 
+                className="text-3xl font-kansas-bold bg-gradient-to-r from-white via-cyan-200 to-blue-400 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.05 }}
+              >
                 TrustPeer
-              </span>
+              </motion.span>
             </motion.div>
+            
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
               className="hidden md:block"
             >
               {walletState.isConnected ? (
-                <div className="flex items-center space-x-4">
-                  <div className="text-green-400 text-sm">
-                    {walletState.primaryWallet?.type} Connected
-                  </div>
-                  <Link
-                    to="/dashboard"
-                    className="bg-gradient-primary hover:bg-gradient-secondary text-white font-medium py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                <div className="flex items-center space-x-6">
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-500/30 rounded-2xl backdrop-blur-sm"
                   >
-                    Dashboard
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <div className="text-green-300 text-sm font-kansas-medium">
+                      {walletState.primaryWallet?.type} Connected
+                    </div>
+                  </motion.div>
+                  <Link to="/dashboard">
+                    <motion.button
+                      whileHover={{ 
+                        scale: 1.05, 
+                        boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)",
+                        y: -2
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      className="group relative bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-kansas-bold py-4 px-8 rounded-2xl transition-all duration-300 border border-blue-400/20 overflow-hidden"
+                    >
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                      <span className="relative z-10">Dashboard</span>
+                    </motion.button>
                   </Link>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  className="bg-gradient-primary hover:bg-gradient-secondary text-white font-medium py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                >
-                  Connect Wallet
+                <Link to="/login">
+                  <motion.button
+                    whileHover={{ 
+                      scale: 1.05, 
+                      boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)",
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-kansas-bold py-4 px-8 rounded-2xl transition-all duration-300 border border-blue-400/20 overflow-hidden"
+                  >
+                    {/* Animated background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                    
+                    <span className="relative z-10 flex items-center gap-2">
+                      <motion.span
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                      >
+                        🚀
+                      </motion.span>
+                      Connect Wallet
+                    </span>
+                  </motion.button>
                 </Link>
               )}
             </motion.div>
@@ -354,30 +412,76 @@ const Home = () => {
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
+              transition={{ delay: 1.8, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-20"
             >
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.3)",
+                  y: -5
+                }}
                 whileTap={{ scale: 0.95 }}
+                className="group"
               >
                 <Link
                   to="/search-trader"
-                  className="bg-gradient-primary hover:bg-gradient-secondary text-white font-semibold py-4 px-10 rounded-2xl text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl min-w-[200px] block text-center"
+                  className="relative block bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-kansas-bold py-6 px-12 rounded-2xl text-xl transition-all duration-500 shadow-2xl border border-blue-400/20 overflow-hidden min-w-[280px] text-center"
                 >
-                  Find Traders
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                  
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    <motion.span
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
+                      className="text-2xl"
+                    >
+                      🔍
+                    </motion.span>
+                    Find Traders
+                  </div>
+                  
+                  {/* Particle effects */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute top-2 right-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                    <div className="absolute bottom-3 left-6 w-1 h-1 bg-cyan-200 rounded-full animate-ping delay-300"></div>
+                  </div>
                 </Link>
               </motion.div>
 
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  boxShadow: "0 20px 40px -12px rgba(148, 163, 184, 0.3), 0 0 30px rgba(148, 163, 184, 0.2)",
+                  y: -5
+                }}
                 whileTap={{ scale: 0.95 }}
+                className="group"
               >
                 <Link
                   to="/start-trade"
-                  className="glass-effect hover:bg-white/20 border border-white/20 hover:border-white/30 text-white font-semibold py-4 px-10 rounded-2xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] block text-center"
+                  className="relative block bg-gradient-to-br from-slate-800/60 to-slate-900/80 backdrop-blur-xl border-2 border-slate-600/50 hover:border-slate-400/70 text-white font-kansas-bold py-6 px-12 rounded-2xl text-xl transition-all duration-500 shadow-lg min-w-[280px] text-center overflow-hidden"
                 >
-                  Start Trade
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-600/20 to-slate-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 transition-all duration-700"></div>
+                  
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    <motion.span
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                      className="text-2xl"
+                    >
+                      🚀
+                    </motion.span>
+                    Start Trade
+                  </div>
                 </Link>
               </motion.div>
             </motion.div>
