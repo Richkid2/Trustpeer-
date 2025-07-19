@@ -135,22 +135,22 @@ const RateTrader = () => {
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 text-center"
+          className="max-w-md w-full bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-[#f5762c]/20 text-center"
         >
-          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Wallet Required</h2>
-          <p className="text-gray-600 mb-6">Connect your wallet to rate your trading partner</p>
+          <h2 className="text-2xl font-bold text-white mb-2">Wallet Required</h2>
+          <p className="text-gray-400 mb-6">Connect your wallet to rate your trading partner</p>
           <Link
             to="/login"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg block text-center"
+            className="w-full bg-gradient-to-r from-[#f5762c] to-[#e53825] hover:from-[#e53825] hover:to-[#f5762c] text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg block text-center"
           >
             Connect Wallet
           </Link>
@@ -161,24 +161,24 @@ const RateTrader = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 text-center"
+          className="max-w-md w-full bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-[#f5762c]/20 text-center"
         >
-          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Rating Submitted!</h2>
-          <p className="text-gray-600 mb-4">Thank you for rating your trading partner</p>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <h2 className="text-2xl font-bold text-white mb-2">Rating Submitted!</h2>
+          <p className="text-gray-400 mb-4">Thank you for rating your trading partner</p>
+          <div className="bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-6 mb-6">
             <div className="flex items-center justify-center mb-2">
               <StarRating rating={rating} size="lg" />
             </div>
-            <p className="text-green-800 text-sm">Your {getRatingText(rating)} rating has been recorded</p>
+            <p className="text-green-400 text-sm font-semibold">Your {getRatingText(rating)} rating has been recorded</p>
           </div>
           <p className="text-sm text-gray-500">Redirecting to home...</p>
         </motion.div>
@@ -187,31 +187,31 @@ const RateTrader = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Rate Your Trading Partner</h1>
-          <p className="text-gray-600">Help build trust in the TrustPeer community</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Rate Your Trading Partner</h1>
+          <p className="text-gray-400">Help build trust in the TrustPeer community</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8"
+          className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-[#f5762c]/20 mb-8"
         >
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-6">
             <div className="flex items-center">
-              <svg className="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="text-green-800 font-semibold">Trade Completed Successfully!</p>
-                <p className="text-green-700 text-sm">Funds have been released and the trade is complete</p>
+                <p className="text-green-300 font-semibold">Trade Completed Successfully!</p>
+                <p className="text-green-400 text-sm">Funds have been released and the trade is complete</p>
               </div>
             </div>
           </div>
@@ -222,25 +222,25 @@ const RateTrader = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8"
+            className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-[#f5762c]/20 mb-8"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Trade Details</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Trade Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Trade ID</p>
-                <p className="font-medium font-mono">{trade.id}</p>
+                <p className="text-sm text-gray-400 mb-1">Trade ID</p>
+                <p className="font-medium font-mono text-white">{trade.id}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Amount</p>
-                <p className="font-medium text-lg">{trade.amount} {trade.currency}</p>
+                <p className="text-sm text-gray-400 mb-1">Amount</p>
+                <p className="font-medium text-lg text-[#f5762c]">{trade.amount} {trade.currency}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Trading Partner</p>
-                <p className="font-medium font-mono">{formatAddress(traderAddress)}</p>
+                <p className="text-sm text-gray-400 mb-1">Trading Partner</p>
+                <p className="font-medium font-mono text-white">{formatAddress(traderAddress)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Trade Type</p>
-                <p className="font-medium capitalize">{trade.type}</p>
+                <p className="text-sm text-gray-400 mb-1">Trade Type</p>
+                <p className="font-medium capitalize text-white">{trade.type}</p>
               </div>
             </div>
           </motion.div>
@@ -250,24 +250,24 @@ const RateTrader = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20"
+          className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-[#f5762c]/20"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center"
+                className="bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 rounded-xl p-4 flex items-center"
               >
-                <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span className="text-red-700">{error}</span>
+                <span className="text-red-300">{error}</span>
               </motion.div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-4">
+              <label className="block text-sm font-semibold text-white mb-4">
                 How would you rate your experience?
               </label>
               <div className="flex flex-col items-center space-y-4">
@@ -277,21 +277,21 @@ const RateTrader = () => {
                   interactive={true}
                   onChange={handleRatingChange}
                 />
-                <p className="text-lg font-medium text-gray-700">
+                <p className="text-lg font-medium text-[#f5762c]">
                   {getRatingText(rating)}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-white mb-2">
                 Share your experience
               </label>
               <textarea
                 value={comment}
                 onChange={handleCommentChange}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#f5762c] focus:border-[#f5762c] transition duration-300"
                 placeholder="Describe your trading experience. Was communication good? Did they follow through on their commitments? Be specific and helpful to other traders."
                 required
               />
@@ -305,7 +305,7 @@ const RateTrader = () => {
               disabled={isSubmitting}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-[#f5762c] to-[#e53825] hover:from-[#e53825] hover:to-[#f5762c] disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>
@@ -335,7 +335,7 @@ const RateTrader = () => {
         >
           <Link 
             to="/" 
-            className="text-blue-600 hover:text-blue-700 font-medium transition duration-200 flex items-center justify-center gap-2"
+            className="text-[#f5762c] hover:text-[#e53825] font-semibold transition duration-300 flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

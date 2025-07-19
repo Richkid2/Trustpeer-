@@ -69,46 +69,48 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20"
+        className="max-w-md w-full bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-[#f5762c]/20"
       >
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+          <div className="w-20 h-20 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <img 
+              src="/trustpeer-logo.png" 
+              alt="TrustPeer" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to TrustPeer</h2>
-          <p className="text-gray-600 text-sm">Secure P2P trading on the Internet Computer</p>
+          <h2 className="text-3xl font-bold text-white mb-2">Welcome to TrustPeer</h2>
+          <p className="text-gray-400 text-sm">Secure P2P trading on the Internet Computer</p>
         </div>
 
         {/* Show connected status if wallet is connected */}
         {walletState.isConnected && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-6 mb-6">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-green-800 font-medium">
+              <span className="text-green-300 font-semibold">
                 Wallet Connected{authState.isAuthenticated ? ' & Authenticated' : ''}!
               </span>
             </div>
-            <p className="text-green-600 text-sm mt-1">
+            <p className="text-green-400 text-sm mt-2">
               {walletState.primaryWallet?.type} - {walletState.primaryWallet?.address?.slice(0, 6)}...{walletState.primaryWallet?.address?.slice(-4)}
             </p>
-            <div className="flex gap-3 mt-3">
+            <div className="flex gap-3 mt-4">
               <Link 
                 to="/"
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+                className="bg-gradient-to-r from-[#f5762c] to-[#e53825] hover:from-[#e53825] hover:to-[#f5762c] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 shadow-lg"
               >
                 Continue to TrustPeer
               </Link>
               <button
                 onClick={handleWalletDisconnect}
-                className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+                className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-300"
               >
                 Disconnect
               </button>
@@ -119,26 +121,26 @@ const Login = () => {
         {/* Show wallet connection form if not connected */}
         {!walletState.isConnected && (
           <div className="mb-8">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center mb-2">
-                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-r from-[#f5762c]/10 to-[#e53825]/10 border border-[#f5762c]/30 rounded-xl p-6 mb-6">
+              <div className="flex items-center mb-3">
+                <svg className="w-5 h-5 text-[#f5762c] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className="text-sm font-medium text-blue-800">Connect Your Wallet</span>
+                <span className="text-sm font-semibold text-white">Connect Your Wallet</span>
               </div>
-              <p className="text-xs text-blue-700">
+              <p className="text-sm text-gray-400">
                 Choose your preferred wallet to access TrustPeer and start trading securely.
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {/* Internet Identity */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleWalletConnect(WalletType.INTERNET_IDENTITY)}
                 disabled={loadingWallet === WalletType.INTERNET_IDENTITY}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"
+                className="w-full bg-gradient-to-r from-[#f5762c] to-[#e53825] hover:from-[#e53825] hover:to-[#f5762c] disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg flex items-center justify-center"
               >
                 {loadingWallet === WalletType.INTERNET_IDENTITY ? (
                   <>
@@ -150,7 +152,7 @@ const Login = () => {
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     Internet Identity
@@ -164,11 +166,11 @@ const Login = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleWalletConnect(WalletType.PLUG)}
                 disabled={loadingWallet === WalletType.PLUG}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center border border-gray-300"
+                className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 flex items-center justify-center border border-gray-700 hover:border-[#f5762c]/50"
               >
                 {loadingWallet === WalletType.PLUG ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -176,8 +178,8 @@ const Login = () => {
                   </>
                 ) : (
                   <>
-                    <div className="w-5 h-5 mr-2 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">P</span>
+                    <div className="w-6 h-6 mr-3 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">P</span>
                     </div>
                     Plug Wallet
                   </>
@@ -190,11 +192,11 @@ const Login = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleWalletConnect(WalletType.METAMASK)}
                 disabled={loadingWallet === WalletType.METAMASK}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center border border-gray-300"
+                className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 flex items-center justify-center border border-gray-700 hover:border-[#f5762c]/50"
               >
                 {loadingWallet === WalletType.METAMASK ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -202,8 +204,8 @@ const Login = () => {
                   </>
                 ) : (
                   <>
-                    <div className="w-5 h-5 mr-2 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">M</span>
+                    <div className="w-6 h-6 mr-3 bg-orange-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">M</span>
                     </div>
                     MetaMask
                   </>
@@ -216,11 +218,11 @@ const Login = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleWalletConnect(WalletType.TRUST_WALLET)}
                 disabled={loadingWallet === WalletType.TRUST_WALLET}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center border border-gray-300"
+                className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 flex items-center justify-center border border-gray-700 hover:border-[#f5762c]/50"
               >
                 {loadingWallet === WalletType.TRUST_WALLET ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -228,8 +230,8 @@ const Login = () => {
                   </>
                 ) : (
                   <>
-                    <div className="w-5 h-5 mr-2 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">T</span>
+                    <div className="w-6 h-6 mr-3 bg-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">T</span>
                     </div>
                     Trust Wallet
                   </>
@@ -242,9 +244,12 @@ const Login = () => {
         <div className="text-center">
           <Link 
             to="/" 
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition duration-200"
+            className="text-[#f5762c] hover:text-[#e53825] text-sm font-semibold transition duration-300 flex items-center justify-center"
           >
-            ← Back to Home
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
           </Link>
         </div>
       </motion.div>

@@ -81,7 +81,7 @@ const SearchTrader = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -90,9 +90,9 @@ const SearchTrader = () => {
           className="text-center mb-12"
         >
           <h1 className="text-5xl font-bold text-white mb-4">
-            Find <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Traders</span>
+            Find <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f5762c] to-[#e53825]">Traders</span>
           </h1>
-          <p className="text-xl text-slate-300">Discover trusted traders and explore the marketplace</p>
+          <p className="text-xl text-gray-400">Discover trusted traders and explore the marketplace</p>
         </motion.div>
 
         {/* Search Section */}
@@ -102,11 +102,11 @@ const SearchTrader = () => {
           transition={{ delay: 0.1 }}
           className="max-w-3xl mx-auto mb-16"
         >
-          <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50">
+          <div className="bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-[#f5762c]/20">
             <form onSubmit={handleSearch} className="space-y-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -114,7 +114,7 @@ const SearchTrader = () => {
                   type="text"
                   value={searchQuery}
                   onChange={handleInputChange}
-                  className="w-full pl-14 pr-4 py-4 bg-slate-700/50 border border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-white text-lg placeholder-slate-400"
+                  className="w-full pl-14 pr-4 py-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f5762c] focus:border-[#f5762c] transition duration-300 text-white text-lg placeholder-gray-400"
                   placeholder="Search by username, wallet address, or skill..."
                 />
               </div>
@@ -125,7 +125,7 @@ const SearchTrader = () => {
                   <button
                     key={filter}
                     type="button"
-                    className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600 border border-slate-600 rounded-full text-sm text-slate-300 hover:text-white transition duration-200"
+                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-[#f5762c]/50 rounded-xl text-sm text-gray-300 hover:text-white transition duration-300"
                   >
                     {filter}
                   </button>
@@ -137,7 +137,7 @@ const SearchTrader = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center"
+                  className="bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 rounded-xl p-4 flex items-center"
                 >
                   <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -153,7 +153,7 @@ const SearchTrader = () => {
                   disabled={isLoading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-500 text-white font-semibold py-4 px-8 rounded-2xl transition duration-200 shadow-lg flex items-center justify-center text-lg"
+                  className="flex-1 bg-gradient-to-r from-[#f5762c] to-[#e53825] hover:from-[#e53825] hover:to-[#f5762c] disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg flex items-center justify-center text-lg"
                 >
                   {isLoading ? (
                     <>
@@ -181,7 +181,7 @@ const SearchTrader = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-2xl transition duration-200"
+                    className="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold rounded-xl transition duration-300"
                   >
                     Clear
                   </motion.button>
