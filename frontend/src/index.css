@@ -1,5 +1,70 @@
 @import "tailwindcss";
 
+/* New Kansas Font Family */
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Thin.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Semi-Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Heavy.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'New Kansas';
+  src: url('./assets/fonts/fonnts.com-New-Kansas-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   
@@ -10,7 +75,7 @@
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'New Kansas', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
@@ -28,6 +93,84 @@
 }
 
 @layer components {
+  /* Font Family Utilities */
+  .font-kansas {
+    font-family: 'New Kansas', sans-serif;
+  }
+
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Typography Hierarchy using New Kansas */
+  .heading-hero {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 900; /* Black */
+    font-size: 3.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .heading-xl {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 800; /* Heavy */
+    font-size: 2.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .heading-lg {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 2rem;
+    line-height: 1.3;
+  }
+
+  .heading-md {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 600; /* Semi-Bold */
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  .heading-sm {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 500; /* Medium */
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+
+  /* Button Typography */
+  .btn-text {
+    font-family: 'New Kansas', sans-serif;
+    font-weight: 600; /* Semi-Bold */
+    font-size: 1rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  /* Body Text with Inter for readability */
+  .body-lg {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .body-md {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .body-sm {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
   .glass-effect {
     backdrop-filter: blur(16px);
     background: rgba(255, 255, 255, 0.1);
