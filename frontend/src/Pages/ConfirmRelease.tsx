@@ -1,6 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { 
+  Shield,
+  AlertTriangle,
+  ArrowRight,
+  Lock,
+  Unlock,
+  Zap,
+  Clock,
+  User,
+  Eye
+} from 'lucide-react'
 import { escrowService } from '../Services/escrow.service'
 import { multiWalletService } from '../Services/wallet.service'
 import type { TradeDetails } from '../Services/escrow.service'
@@ -15,17 +26,12 @@ const ConfirmRelease = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    checkWalletConnection()
-    loadTradeData()
-  }, [])
-
   const checkWalletConnection = () => {
     const walletState = multiWalletService.getState()
     setIsWalletConnected(walletState.isConnected)
   }
 
-  const loadTradeData = async () => {
+  const loadTradeData = useCallback(async () => {
     const tradeId = searchParams.get('tradeId')
     if (!tradeId) {
       setError('Trade ID not provided')
@@ -46,7 +52,12 @@ const ConfirmRelease = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [searchParams])
+
+  useEffect(() => {
+    checkWalletConnection()
+    loadTradeData()
+  }, [loadTradeData])
 
   const handleConfirmRelease = async () => {
     if (!trade || !isConfirmed) return
@@ -68,31 +79,68 @@ const ConfirmRelease = () => {
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden flex items-center justify-center p-4">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50 text-center"
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center relative z-10"
         >
-          <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Connect Wallet</h2>
-          <p className="text-slate-300 mb-8">You need to connect your wallet to confirm fund release</p>
+          <motion.div 
+            className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Lock className="w-10 h-10 text-white" />
+          </motion.div>
+          
+          <motion.h2 
+            className="text-2xl font-kansas-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Connect Wallet
+          </motion.h2>
+          
+          <motion.p 
+            className="text-slate-400 font-kansas-light mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            You need to connect your wallet to confirm fund release
+          </motion.p>
+          
           <div className="space-y-4">
-            <Link
-              to="/login"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-lg block text-center"
-            >
-              Connect Wallet
+            <Link to="/login">
+              <motion.button
+                whileHover={{ 
+                  scale: 1.02, 
+                  boxShadow: "0 20px 40px -12px rgba(239, 68, 68, 0.4)",
+                  y: -2 
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg"
+              >
+                Connect Wallet
+              </motion.button>
             </Link>
-            <Link
-              to="/escrow-progress"
-              className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-4 px-6 rounded-xl transition duration-200 block text-center"
-            >
-              Back to Progress
+            
+            <Link to="/escrow-progress">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-br from-slate-700/60 to-slate-800/80 backdrop-blur-xl hover:from-slate-600/70 hover:to-slate-700/90 text-slate-200 font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 border border-slate-600/50"
+              >
+                Back to Progress
+              </motion.button>
             </Link>
           </div>
         </motion.div>
@@ -102,20 +150,39 @@ const ConfirmRelease = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden flex items-center justify-center p-4">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center"
+          className="text-center relative z-10"
         >
-          <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Loading Trade</h2>
-          <p className="text-slate-400">Please wait while we load your trade details...</p>
+          <motion.div 
+            className="w-16 h-16 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full"
+            />
+          </motion.div>
+          
+          <motion.h2 
+            className="text-xl font-kansas-bold text-white mb-2"
+            animate={{ opacity: [1, 0.5, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Loading Trade
+          </motion.h2>
+          
+          <p className="text-slate-400 font-kansas-light">Please wait while we load your trade details...</p>
         </motion.div>
       </div>
     )
@@ -123,31 +190,52 @@ const ConfirmRelease = () => {
 
   if (error && !trade) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 relative overflow-hidden flex items-center justify-center p-4">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50 text-center"
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center relative z-10"
         >
-          <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Error</h2>
-          <p className="text-slate-300 mb-8">{error}</p>
+          <motion.div 
+            className="w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <AlertTriangle className="w-10 h-10 text-white" />
+          </motion.div>
+          
+          <h2 className="text-2xl font-kansas-bold bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent mb-2">Error</h2>
+          <p className="text-slate-300 font-kansas-light mb-8">{error}</p>
+          
           <div className="space-y-4">
-            <button
+            <motion.button
               onClick={loadTradeData}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-lg"
+              whileHover={{ 
+                scale: 1.02, 
+                boxShadow: "0 20px 40px -12px rgba(239, 68, 68, 0.4)",
+                y: -2 
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg"
             >
               Try Again
-            </button>
-            <Link
-              to="/escrow-progress"
-              className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-4 px-6 rounded-xl transition duration-200 block text-center"
-            >
-              Back to Progress
+            </motion.button>
+            
+            <Link to="/escrow-progress">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-br from-slate-700/60 to-slate-800/80 backdrop-blur-xl hover:from-slate-600/70 hover:to-slate-700/90 text-slate-200 font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 border border-slate-600/50"
+              >
+                Back to Progress
+              </motion.button>
             </Link>
           </div>
         </motion.div>
@@ -156,163 +244,294 @@ const ConfirmRelease = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl font-bold text-white mb-2">Confirm Release</h1>
-          <p className="text-slate-300">Review and confirm the release of escrowed funds</p>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
 
-        {/* Main Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50"
-        >
-          {/* Trade Summary */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Trade Summary</h2>
-            <div className="bg-slate-700/30 rounded-2xl p-6 border border-slate-600">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <div className="text-slate-400 text-sm mb-1">Trade ID</div>
-                  <div className="text-white font-mono text-lg">{trade?.id || '#TR001'}</div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm mb-1">Amount</div>
-                  <div className="text-white font-bold text-lg">{trade?.amount || '0.5'} {trade?.currency || 'ETH'}</div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm mb-1">Trading Partner</div>
-                  <div className="text-white font-mono">{trade?.seller || '0x1234...5678'}</div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm mb-1">Escrow Fee</div>
-                  <div className="text-white font-medium">0.01 ETH</div>
-                </div>
+      {/* Grid pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+
+      <div className="relative z-10 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <motion.h1 
+              className="text-5xl md:text-6xl font-kansas-black bg-gradient-to-r from-white via-green-200 to-emerald-400 bg-clip-text text-transparent mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              Confirm <span className="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">Release</span>
+            </motion.h1>
+            <motion.p 
+              className="text-xl text-slate-400 font-kansas-light max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              Final step: <span className="text-green-400 font-kansas-medium">Release escrowed funds</span> to complete the trade
+            </motion.p>
+          </motion.div>
+
+          {/* Main Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 mb-8"
+          >
+            {/* Trade Summary */}
+            <div className="mb-8">
+              <div className="flex items-center mb-6">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mr-4"
+                >
+                  <Eye className="w-4 h-4 text-white" />
+                </motion.div>
+                <h2 className="text-2xl font-kansas-bold text-white">Trade Summary</h2>
               </div>
-            </div>
-          </div>
-
-          {/* Warning Section */}
-          <div className="mb-8">
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-yellow-300 font-semibold mb-2">Important Warning</h3>
-                  <p className="text-yellow-200">
-                    Once you confirm the release, the funds will be immediately transferred to your trading partner. 
-                    This action is <strong>irreversible</strong> and cannot be undone.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Confirmation Checkbox */}
-          <div className="mb-8">
-            <motion.label
-              whileHover={{ scale: 1.01 }}
-              className="flex items-start gap-4 cursor-pointer p-4 bg-slate-700/30 rounded-2xl border border-slate-600 hover:border-slate-500 transition-colors"
-            >
-              <input
-                type="checkbox"
-                checked={isConfirmed}
-                onChange={(e) => setIsConfirmed(e.target.checked)}
-                className="w-5 h-5 text-blue-500 bg-slate-600 border-slate-500 rounded focus:ring-blue-500 focus:ring-2 mt-1"
-              />
-              <div>
-                <div className="text-white font-medium mb-1">Confirmation Required</div>
-                <div className="text-slate-300 text-sm">
-                  I confirm that I have received the agreed goods/services and want to release the escrowed funds to my trading partner.
-                </div>
-              </div>
-            </motion.label>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mb-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center"
-            >
-              <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <span className="text-red-300">{error}</span>
-            </motion.div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleConfirmRelease}
-              disabled={!isConfirmed || isReleasing}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-slate-600 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-2xl transition duration-200 shadow-lg flex items-center justify-center"
-            >
-              {isReleasing ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Releasing Funds...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Confirm & Release Funds
-                </>
-              )}
-            </motion.button>
-            
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Link
-                to={`/escrow-progress?tradeId=${trade?.id}`}
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-4 px-6 rounded-2xl transition duration-200 block text-center"
+              
+              <motion.div 
+                className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.2 }}
               >
-                Back to Progress
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="group"
+                  >
+                    <div className="text-slate-400 text-sm mb-2 font-kansas-medium">Trade ID</div>
+                    <div className="font-kansas-bold font-mono text-lg bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                      {trade?.id || '#TR001'}
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    <div className="text-slate-400 text-sm mb-2 font-kansas-medium">Amount</div>
+                    <div className="text-white font-kansas-black text-lg flex items-center">
+                      <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                        {trade?.amount || '0.5'}
+                      </span>
+                      <span className="ml-2 text-slate-300">{trade?.currency || 'ETH'}</span>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.0 }}
+                  >
+                    <div className="text-slate-400 text-sm mb-2 font-kansas-medium">Trading Partner</div>
+                    <div className="text-white font-kansas-bold font-mono flex items-center">
+                      <User className="w-4 h-4 mr-2 text-cyan-400" />
+                      {trade?.seller || '0x1234...5678'}
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.1 }}
+                  >
+                    <div className="text-slate-400 text-sm mb-2 font-kansas-medium">Escrow Fee</div>
+                    <div className="text-white font-kansas-bold flex items-center">
+                      <Zap className="w-4 h-4 mr-2 text-yellow-400" />
+                      0.01 ETH
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Warning Section */}
+            <motion.div 
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+            >
+              <motion.div 
+                className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-6 backdrop-blur-sm"
+                whileHover={{ scale: 1.01, borderColor: 'rgba(245, 158, 11, 0.5)' }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex items-start gap-4">
+                  <motion.div 
+                    className="w-8 h-8 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                  </motion.div>
+                  <div>
+                    <h3 className="text-yellow-300 font-kansas-bold mb-2 flex items-center">
+                      <Clock className="w-4 h-4 mr-2" />
+                      Critical Warning
+                    </h3>
+                    <p className="text-yellow-200 font-kansas-light leading-relaxed">
+                      Once you confirm the release, the funds will be <span className="font-kansas-bold text-yellow-100">immediately transferred</span> to your trading partner. 
+                      This action is <span className="font-kansas-bold text-red-300">irreversible</span> and cannot be undone.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Confirmation Checkbox */}
+            <motion.div 
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+            >
+              <motion.label
+                whileHover={{ scale: 1.01 }}
+                className="flex items-start gap-4 cursor-pointer p-6 bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl border border-slate-600/50 hover:border-green-500/30 transition-all duration-300 group"
+              >
+                <motion.input
+                  type="checkbox"
+                  checked={isConfirmed}
+                  onChange={(e) => setIsConfirmed(e.target.checked)}
+                  animate={{ scale: isConfirmed ? 1.1 : 1 }}
+                  className="w-5 h-5 text-green-500 bg-slate-600 border-slate-500 rounded focus:ring-green-500 focus:ring-2 mt-1"
+                />
+                <div>
+                  <div className="text-white font-kansas-bold mb-2 flex items-center">
+                    <Shield className="w-4 h-4 mr-2 text-green-400" />
+                    Confirmation Required
+                  </div>
+                  <div className="text-slate-300 font-kansas-light text-sm leading-relaxed">
+                    I confirm that I have <span className="font-kansas-medium text-green-300">received the agreed goods/services</span> and want to release the escrowed funds to my trading partner.
+                  </div>
+                </div>
+              </motion.label>
+            </motion.div>
+
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-2xl p-5 flex items-center backdrop-blur-sm"
+              >
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+                </motion.div>
+                <span className="text-red-300 font-kansas-medium">{error}</span>
+              </motion.div>
+            )}
+
+            {/* Action Buttons */}
+            <motion.div 
+              className="flex gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6 }}
+            >
+              <motion.button
+                onClick={handleConfirmRelease}
+                disabled={!isConfirmed || isReleasing}
+                whileHover={!isReleasing && isConfirmed ? { 
+                  scale: 1.02, 
+                  boxShadow: "0 20px 40px -12px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.3)",
+                  y: -2 
+                } : {}}
+                whileTap={{ scale: 0.98 }}
+                className="group flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-slate-600 disabled:to-slate-700 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg flex items-center justify-center border border-green-400/20 disabled:border-slate-600/20 overflow-hidden"
+              >
+                {!isReleasing && isConfirmed && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                )}
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  {isReleasing ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      />
+                      Releasing Funds...
+                    </>
+                  ) : (
+                    <>
+                      {isConfirmed ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                      Confirm & Release Funds
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </span>
+              </motion.button>
+              
+              <Link to={`/escrow-progress?tradeId=${trade?.id}`}>
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-gradient-to-br from-slate-700/60 to-slate-800/80 backdrop-blur-xl hover:from-slate-600/70 hover:to-slate-700/90 text-slate-200 font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 border border-slate-600/50 hover:border-slate-500/70"
+                >
+                  Back to Progress
+                </motion.button>
               </Link>
             </motion.div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Back Link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 text-center"
-        >
-          <Link 
-            to="/" 
-            className="text-slate-400 hover:text-slate-300 font-medium transition duration-200 flex items-center justify-center gap-2"
+          {/* Back Link */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8 }}
+            className="text-center"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
-        </motion.div>
+            <Link to="/">
+              <motion.button
+                whileHover={{ 
+                  scale: 1.05, 
+                  boxShadow: "0 0 20px rgba(6, 182, 212, 0.4)",
+                  y: -2
+                }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center text-cyan-400 hover:text-cyan-300 font-kansas-medium transition-all duration-300 mx-auto"
+              >
+                <motion.svg 
+                  className="w-5 h-5 mr-2 group-hover:text-cyan-300 transition-colors" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  animate={{ x: [-2, 0, -2] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </motion.svg>
+                Back to Home
+              </motion.button>
+            </Link>
+          </motion.div>
+        </div>
       </div>
     </div>
   )

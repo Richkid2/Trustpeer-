@@ -26,7 +26,6 @@ const WalletConnect = ({
       setWalletState(multiWalletService.getState())
     }
 
-    // Listen for wallet state changes
     const interval = setInterval(handleStateChange, 1000)
     return () => clearInterval(interval)
   }, [])
@@ -38,7 +37,6 @@ const WalletConnect = ({
       const newState = multiWalletService.getState()
       setWalletState(newState)
       
-      // Only trigger callback if wallet is actually connected
       if (newState.isConnected) {
         onConnect?.(walletType)
       }
@@ -98,7 +96,6 @@ const WalletConnect = ({
     }
   }
 
-  // If connected, show wallet info
   if (walletState.isConnected && variant !== 'minimal') {
     return (
       <motion.div
@@ -138,7 +135,6 @@ const WalletConnect = ({
     )
   }
 
-  // If connected but minimal variant, show simple indicator
   if (walletState.isConnected && variant === 'minimal') {
     return (
       <motion.div
@@ -152,7 +148,6 @@ const WalletConnect = ({
     )
   }
 
-  // Show wallet connection options
   const walletOptions = [
     WalletType.INTERNET_IDENTITY,
     WalletType.PLUG,

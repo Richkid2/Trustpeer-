@@ -1,167 +1,107 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Building2, 
+  ArrowRight,
+  CheckCircle,
+  Wallet,
+  Shield,
+  Zap,
+  Lock,
+  ArrowLeft
+} from 'lucide-react'
 import { escrowService } from '../Services/escrow.service'
 import { multiWalletService } from '../Services/wallet.service'
 import type { CreateTradeRequest } from '../Services/escrow.service'
 
-// Helper functions for address formats
-const getAddressPlaceholder = (currency: string): string => {
-  switch (currency) {
-    case 'ETH':
-    case 'USDC':
-    case 'USDT':
-      return '0x1234...abcd (Ethereum address)'
-    case 'BTC':
-      return '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa (Bitcoin address)'
-    case 'ICP':
-      return 'rdmx6-jaaaa-aaaah-qcaiq-cai (Principal ID)'
-    case 'MATIC':
-      return '0x1234...abcd (Polygon address)'
-    default:
-      return '0x1234...abcd'
-  }
-}
-
-const getAddressFormatInfo = (currency: string): string => {
-  switch (currency) {
-    case 'ETH':
-      return 'Ethereum addresses start with 0x and are 42 characters long. Make sure your partner has an Ethereum wallet like MetaMask.'
-    case 'USDC':
-    case 'USDT':
-      return 'These are ERC-20 tokens on Ethereum. Use an Ethereum address (0x...) that supports these tokens.'
-    case 'BTC':
-      return 'Bitcoin addresses can start with 1, 3, or bc1. Make sure your partner has a Bitcoin wallet.'
-    case 'ICP':
-      return 'Internet Computer Principal IDs are unique identifiers. Your partner needs an ICP wallet like Plug or Internet Identity.'
-    case 'MATIC':
-      return 'Polygon addresses are like Ethereum addresses (0x...) but on the Polygon network. Make sure your partner has Polygon network configured.'
-    default:
-      return 'Enter a valid wallet address for the selected currency.'
-  }
-}
-
-const validateAddress = (address: string, currency: string): boolean => {
-  if (!address || address.trim() === '') return false
-  
-  switch (currency) {
-    case 'ETH':
-    case 'USDC':
-    case 'USDT':
-    case 'MATIC':
-      // Ethereum/EVM address validation
-      return /^0x[a-fA-F0-9]{40}$/.test(address)
-    case 'BTC':
-      // Bitcoin address validation (simplified)
-      return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address) || /^bc1[a-z0-9]{39,59}$/.test(address)
-    case 'ICP':
-      // ICP Principal ID validation (simplified)
-      return /^[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{5}-[a-z0-9]{3}$/.test(address)
-    default:
-      return address.length > 10
-  }
-}
+type TradeType = 'buy' | 'sell'
+type PaymentMethod = 'bank_transfer'
 
 const StartTrade = () => {
-  const [formData, setFormData] = useState<CreateTradeRequest>({
-    partnerAddress: '',
-    amount: '',
-    currency: 'ETH',
-    tradeType: 'buy',
-    paymentMethod: 'bank_transfer',
-    terms: ''
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [isWalletConnected, setIsWalletConnected] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
-  const [showPreview, setShowPreview] = useState(false)
-  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    usdAmount: '',
+    currency: 'USDT',
+    tradeType: 'buy' as TradeType,
+    paymentMethod: 'bank_transfer' as PaymentMethod,
+    buyerAddress: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [nairaAmount, setNairaAmount] = useState(0);
+  const [cryptoAmount, setCryptoAmount] = useState('0');
+  const navigate = useNavigate();
 
-  const totalSteps = 3
+  // USD to NGN rate and crypto prices in USD
+  const USD_TO_NGN_RATE = 1650; // 1 USD = 1650 NGN
+  const CRYPTO_PRICES_USD = {
+    USDT: 1,      // 1 USDT = 1 USD
+    BTC: 57575,   // 1 BTC = 57,575 USD
+    ETH: 3152,    // 1 ETH = 3,152 USD  
+    BNB: 515,     // 1 BNB = 515 USD
+    USDC: 1       // 1 USDC = 1 USD
+  };
+
+  // Currency options
+  const CURRENCY_OPTIONS = [
+    { symbol: 'USDT', name: 'Tether USD', color: 'emerald', icon: '₮' },
+    { symbol: 'BTC', name: 'Bitcoin', color: 'orange', icon: '₿' },
+    { symbol: 'ETH', name: 'Ethereum', color: 'blue', icon: 'Ξ' },
+    { symbol: 'BNB', name: 'BNB', color: 'yellow', icon: 'Ⓑ' },
+    { symbol: 'USDC', name: 'USD Coin', color: 'cyan', icon: '◎' }
+  ];
 
   useEffect(() => {
     checkWalletConnection()
-    
-    // Check wallet connection periodically
     const interval = setInterval(checkWalletConnection, 2000)
     return () => clearInterval(interval)
   }, [])
 
-  const checkWalletConnection = () => {
-    const walletState = multiWalletService.getState()
-    console.log('Wallet state in StartTrade:', walletState)
-    setIsWalletConnected(walletState.isConnected)
-  }
+  useEffect(() => {
+    // Calculate crypto amount and Naira amount whenever USD amount or currency changes
+    const usdValue = parseFloat(formData.usdAmount) || 0;
+    const cryptoPrice = CRYPTO_PRICES_USD[formData.currency as keyof typeof CRYPTO_PRICES_USD] || 1;
+    
+    // Calculate crypto amount with high precision
+    const calculatedCryptoAmount = usdValue / cryptoPrice;
+    setCryptoAmount(calculatedCryptoAmount.toFixed(12)); // High precision for small amounts
+    
+    // Calculate Naira amount
+    setNairaAmount(usdValue * USD_TO_NGN_RATE);
+  }, [formData.usdAmount, formData.currency])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const checkWalletConnection = () => {
+    const walletState = multiWalletService.getState();
+    setIsWalletConnected(walletState.isConnected);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }))
     setError('')
-  }
+  };
 
-  const validateStep = (step: number) => {
-    switch (step) {
-      case 1:
-        if (!formData.currency) return 'Please select a currency'
-        return null
-      case 2:
-        if (!formData.partnerAddress.trim()) return 'Partner address is required'
-        if (!validateAddress(formData.partnerAddress, formData.currency)) {
-          return `Please enter a valid ${formData.currency} address. ${getAddressFormatInfo(formData.currency)}`
-        }
-        if (!formData.amount || parseFloat(formData.amount) <= 0) return 'Please enter a valid amount'
-        return null
-      case 3:
-        if (!formData.tradeType) return 'Please select a trade type'
-        if (!formData.paymentMethod) return 'Please select a payment method'
-        return null
-      default:
-        return null
-    }
-  }
-
-  const nextStep = () => {
-    const validationError = validateStep(currentStep)
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-    setError('')
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
-    } else {
-      setShowPreview(true)
-    }
-  }
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-      setError('')
-    }
-  }
-
-  const resetForm = () => {
-    setCurrentStep(1)
-    setShowPreview(false)
-    setError('')
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleStartTrade = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!isWalletConnected) {
       setError('Please connect your wallet first')
       return
     }
 
-    const finalValidation = validateStep(1) || validateStep(2) || validateStep(3)
-    if (finalValidation) {
-      setError(finalValidation)
+    if (!formData.usdAmount || parseFloat(formData.usdAmount) <= 0) {
+      setError('Please enter a valid USD amount')
+      return
+    }
+
+    if (!formData.buyerAddress.trim()) {
+      setError('Please enter the buyer\'s wallet address')
       return
     }
 
@@ -169,562 +109,612 @@ const StartTrade = () => {
     setError('')
 
     try {
-      const trade = await escrowService.createTrade(formData)
-      console.log('Trade created:', trade)
-      
-      // Navigate to escrow progress page
-      navigate(`/escrow-progress?tradeId=${trade.id}`)
-    } catch (error) {
-      console.error('Failed to create trade:', error)
-      setError(error instanceof Error ? error.message : 'Failed to create trade')
+      // Create trade with automatic escrow
+      const tradeRequest: CreateTradeRequest = {
+        partnerAddress: formData.buyerAddress,
+        amount: cryptoAmount, // Use calculated crypto amount
+        currency: formData.currency,
+        tradeType: formData.tradeType,
+        paymentMethod: formData.paymentMethod,
+        terms: `${cryptoAmount} ${formData.currency} (${formData.usdAmount} USD) for ₦${nairaAmount.toLocaleString()} via ${formData.paymentMethod}`
+      };
+
+      const trade = await escrowService.createTrade(tradeRequest)
+      console.log('Trade created with automatic escrow:', trade)
+
+      navigate(`/escrow-progress?tradeId=${trade.id}`);
+    } catch (err) {
+      console.error('Failed to create trade:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create trade');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50 text-center"
-        >
-          <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Connect Wallet</h2>
-          <p className="text-slate-300 mb-8">You need to connect your wallet to start trading on TrustPeer</p>
-          <div className="space-y-4">
-            <Link
-              to="/login"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-lg block text-center"
-            >
-              Connect Wallet
-            </Link>
-            <Link
-              to="/"
-              className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-4 px-6 rounded-xl transition duration-200 block text-center"
-            >
-              Back to Home
-            </Link>
-          </div>
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
+
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+            className="max-w-md w-full"
+          >
+            {/* Glassmorphic Card */}
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 p-8 text-center relative overflow-hidden">
+              {/* Card Background Glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 rounded-3xl"></div>
+              
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Animated Wallet Icon */}
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                  className="w-24 h-24 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10 blur-xl"></div>
+                  <Wallet className="w-12 h-12 text-red-400 relative z-10" />
+                </motion.div>
+
+                {/* Title with Gradient */}
+                <h2 className="text-3xl font-kansas-black mb-3">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                    Connect Wallet
+                  </span>
+                </h2>
+                
+                <p className="text-slate-300 font-kansas-light mb-8 leading-relaxed">
+                  You need to connect your wallet to start trading on TrustPeer's secure P2P platform
+                </p>
+
+                {/* Action Buttons */}
+                <div className="space-y-4">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Link
+                      to="/login"
+                      className="group w-full bg-gradient-to-r from-blue-500/20 to-purple-600/20 hover:from-blue-500/30 hover:to-purple-600/30 border border-blue-500/30 backdrop-blur-sm text-white font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg block text-center relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 group-hover:from-blue-500/20 group-hover:to-purple-600/20 transition-all duration-300"></div>
+                      <div className="relative flex items-center justify-center">
+                        <Wallet className="w-5 h-5 mr-2" />
+                        Connect Wallet
+                      </div>
+                    </Link>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Link
+                      to="/"
+                      className="group w-full bg-slate-700/20 hover:bg-slate-600/30 border border-slate-600/30 backdrop-blur-sm text-slate-200 font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 block text-center relative overflow-hidden"
+                    >
+                      <div className="relative flex items-center justify-center">
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        Back to Home
+                      </div>
+                    </Link>
+                  </motion.div>
+                </div>
+
+                {/* Security Badge */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-6 flex items-center justify-center text-emerald-400 font-kansas-light text-sm"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  <span>Secured by Multi-Chain Technology</span>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     )
   }
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Trade Setup</h2>
-              <p className="text-slate-300">Choose your trade type and currency</p>
-            </div>
-
-            {/* Trade Type */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                What do you want to do?
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { value: 'buy', label: 'Buy', icon: '📈', color: 'from-green-500 to-emerald-500' },
-                  { value: 'sell', label: 'Sell', icon: '📉', color: 'from-red-500 to-pink-500' },
-                  { value: 'exchange', label: 'Swap', icon: '🔄', color: 'from-blue-500 to-cyan-500' }
-                ].map((option) => (
-                  <motion.button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, tradeType: option.value as 'buy' | 'sell' }))}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`relative p-4 rounded-2xl border-2 transition-all duration-200 ${
-                      formData.tradeType === option.value
-                        ? `border-blue-500 bg-gradient-to-r ${option.color}`
-                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">{option.icon}</div>
-                    <div className="text-sm font-medium text-white">{option.label}</div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Currency */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Currency
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: 'ETH', label: 'Ethereum', icon: '⟠', network: 'Ethereum' },
-                  { value: 'BTC', label: 'Bitcoin', icon: '₿', network: 'Bitcoin' },
-                  { value: 'ICP', label: 'Internet Computer', icon: '∞', network: 'ICP' },
-                  { value: 'USDC', label: 'USD Coin', icon: '$', network: 'Ethereum' },
-                  { value: 'USDT', label: 'Tether', icon: '₮', network: 'Ethereum' },
-                  { value: 'MATIC', label: 'Polygon', icon: '◇', network: 'Polygon' }
-                ].map((currency) => (
-                  <motion.button
-                    key={currency.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, currency: currency.value }))}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`p-4 rounded-2xl border-2 transition-all duration-200 flex items-center space-x-3 ${
-                      formData.currency === currency.value
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="text-2xl">{currency.icon}</div>
-                    <div className="text-left">
-                      <div className="text-sm font-bold text-white">{currency.value}</div>
-                      <div className="text-xs text-slate-400">{currency.network}</div>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Partner Address */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Trading Partner Address
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="partnerAddress"
-                  value={formData.partnerAddress}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-4 pl-12 bg-slate-700/50 border border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-white placeholder-slate-400"
-                  placeholder={getAddressPlaceholder(formData.currency)}
-                />
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2 p-3 bg-slate-700/30 rounded-xl border border-slate-600">
-                <p className="text-xs text-slate-300 mb-1">
-                  <span className="font-medium">Address Format for {formData.currency}:</span>
-                </p>
-                <p className="text-xs text-slate-400">
-                  {getAddressFormatInfo(formData.currency)}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )
-
-      case 2:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Partner & Amount</h2>
-              <p className="text-slate-300">Enter your partner's address and trade amount</p>
-            </div>
-
-            {/* Partner Address */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Trading Partner Address
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="partnerAddress"
-                  value={formData.partnerAddress}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-4 pl-12 bg-slate-700/50 border border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-white placeholder-slate-400"
-                  placeholder={getAddressPlaceholder(formData.currency)}
-                />
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2 p-3 bg-slate-700/30 rounded-xl border border-slate-600">
-                <p className="text-xs text-slate-300 mb-1">
-                  <span className="font-medium">Address Format for {formData.currency}:</span>
-                </p>
-                <p className="text-xs text-slate-400">
-                  {getAddressFormatInfo(formData.currency)}
-                </p>
-              </div>
-            </div>
-
-            {/* Amount */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Amount
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  name="amount"
-                  value={formData.amount}
-                  onChange={handleInputChange}
-                  step="0.001"
-                  min="0"
-                  className="w-full px-4 py-4 pr-20 bg-slate-700/50 border border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-white text-2xl font-bold placeholder-slate-400"
-                  placeholder="0.00"
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-                  {formData.currency}
-                </div>
-              </div>
-            </div>
-
-            {/* Estimated Value */}
-            {formData.amount && (
-              <div className="bg-slate-700/30 rounded-2xl p-4 border border-slate-600">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-300">Estimated Value</span>
-                  <span className="text-white font-bold">
-                    ${(parseFloat(formData.amount) * 2000).toLocaleString()} USD
-                  </span>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )
-
-      case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Trade Details</h2>
-              <p className="text-slate-300">Complete the trade information</p>
-            </div>
-
-            {/* Trade Type */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Trade Type
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: 'buy', label: 'Buy', icon: '📈', desc: 'Purchase cryptocurrency' },
-                  { value: 'sell', label: 'Sell', icon: '📉', desc: 'Sell cryptocurrency' }
-                ].map((type) => (
-                  <motion.button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, tradeType: type.value as 'buy' | 'sell' }))}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`p-4 rounded-2xl border-2 transition-all duration-200 ${
-                      formData.tradeType === type.value
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">{type.icon}</div>
-                    <div className="text-sm font-bold text-white mb-1">{type.label}</div>
-                    <div className="text-xs text-slate-400">{type.desc}</div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Payment Method */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Payment Method
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: 'bank_transfer', label: 'Bank Transfer', icon: '🏦' },
-                  { value: 'paypal', label: 'PayPal', icon: '💳' },
-                  { value: 'cash', label: 'Cash', icon: '💵' },
-                  { value: 'other', label: 'Other', icon: '🔧' }
-                ].map((method) => (
-                  <motion.button
-                    key={method.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.value as 'bank_transfer' | 'paypal' | 'cash' | 'other' }))}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`p-4 rounded-2xl border-2 transition-all duration-200 flex items-center space-x-3 ${
-                      formData.paymentMethod === method.value
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="text-2xl">{method.icon}</div>
-                    <div className="text-sm font-bold text-white">{method.label}</div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Trade Terms */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-200 mb-3">
-                Trade Terms & Notes
-              </label>
-              <textarea
-                name="terms"
-                value={formData.terms}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-white placeholder-slate-400 resize-none"
-                placeholder="Enter any specific terms, conditions, or notes for this trade..."
-              />
-            </div>
-          </motion.div>
-        )
-
-      default:
-        return null
-    }
-  }
-
-  const renderTradePreview = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Review Trade</h2>
-        <p className="text-slate-300">Please review your trade details before creating</p>
-      </div>
-
-      <div className="bg-slate-700/30 rounded-2xl p-6 border border-slate-600 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="text-slate-400 text-sm mb-1">Trade Type</div>
-            <div className="text-white font-medium capitalize">{formData.tradeType}</div>
-          </div>
-          <div>
-            <div className="text-slate-400 text-sm mb-1">Amount</div>
-            <div className="text-white font-medium">{formData.amount} {formData.currency}</div>
-          </div>
-        </div>
-        
-        <div>
-          <div className="text-slate-400 text-sm mb-1">Trading Partner</div>
-          <div className="text-white font-mono text-sm">{formData.partnerAddress}</div>
-        </div>
-        
-        <div>
-          <div className="text-slate-400 text-sm mb-1">Payment Method</div>
-          <div className="text-white font-medium capitalize">{formData.paymentMethod.replace('_', ' ')}</div>
-        </div>
-        
-        {formData.terms && (
-          <div>
-            <div className="text-slate-400 text-sm mb-1">Terms & Notes</div>
-            <div className="text-white text-sm">{formData.terms}</div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={resetForm}
-          className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-4 px-6 rounded-xl transition duration-200"
-        >
-          Edit Trade
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-slate-600 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-lg flex items-center justify-center"
-        >
-          {isLoading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Creating...
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Create Trade
-            </>
-          )}
-        </button>
-      </div>
-    </motion.div>
-  )
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Navigation Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-start items-center mb-8"
-        >
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-slate-400 hover:text-white transition-colors"
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+
+      <div className="relative z-10 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header Section */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-start items-center mb-8"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back to Home</span>
-          </button>
-        </motion.div>
+            <motion.button
+              onClick={() => navigate('/')}
+              whileHover={{ scale: 1.05, x: -5 }}
+              whileTap={{ scale: 0.95 }}
+              className="group flex items-center space-x-3 text-slate-400 hover:text-white transition-all duration-300 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-full px-4 py-2"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+              <span className="font-kansas-medium">Back to Home</span>
+            </motion.button>
+          </motion.div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl font-bold text-white mb-2">Create Trade</h1>
-          <p className="text-slate-300">Secure peer-to-peer trading with escrow protection</p>
-        </motion.div>
-
-        {/* Progress Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 ${
-                  step <= currentStep || showPreview
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-slate-700 text-slate-400'
-                }`}>
-                  {step <= currentStep || showPreview ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    step
-                  )}
-                </div>
-                {step < 3 && (
-                  <div className={`w-20 h-1 mx-4 transition-all duration-200 ${
-                    step < currentStep || showPreview ? 'bg-blue-500' : 'bg-slate-700'
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-sm text-slate-400">
-            <span>Setup</span>
-            <span>Amount</span>
-            <span>Details</span>
-          </div>
-        </motion.div>
-
-        {/* Main Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-700/50"
-        >
-          <form onSubmit={handleSubmit}>
-            {/* Error Message */}
-            <AnimatePresence>
-              {error && (
+          {/* Title Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-5xl font-kansas-black mb-4">
+              <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                Start New Trade
+              </span>
+            </h1>
+            
+            {/* Feature Badges */}
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
+              {[
+                { icon: Shield, text: "Escrow Protected", color: "emerald" },
+                { icon: Zap, text: "Instant Setup", color: "blue" },
+                { icon: Lock, text: "Multi-Chain", color: "purple" }
+              ].map((feature, index) => (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="mb-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center"
+                  key={feature.text}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className={`flex items-center space-x-2 bg-${feature.color}-500/10 border border-${feature.color}-500/20 rounded-full px-4 py-2 backdrop-blur-sm`}
                 >
-                  <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <span className="text-red-300">{error}</span>
+                  <feature.icon className={`w-4 h-4 text-${feature.color}-400`} />
+                  <span className={`text-${feature.color}-400 font-kansas-medium text-sm`}>{feature.text}</span>
                 </motion.div>
-              )}
-            </AnimatePresence>
+              ))}
+            </div>
+          </motion.div>
 
-            {/* Step Content */}
-            <AnimatePresence mode="wait">
-              {showPreview ? renderTradePreview() : renderStepContent()}
-            </AnimatePresence>
-
-            {/* Navigation Buttons */}
-            {!showPreview && (
-              <div className="flex justify-between mt-8">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  disabled={currentStep === 1}
-                  className={`px-6 py-3 rounded-xl font-medium transition duration-200 ${
-                    currentStep === 1
-                      ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
-                      : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
-                  }`}
-                >
-                  Previous
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition duration-200"
-                >
-                  {currentStep === totalSteps ? 'Review' : 'Next'}
-                </button>
-              </div>
-            )}
-          </form>
-        </motion.div>
-
-        {/* Back Link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 text-center"
-        >
-          <Link 
-            to="/" 
-            className="text-slate-400 hover:text-slate-300 font-medium transition duration-200 flex items-center justify-center gap-2"
+          {/* Main Form Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+            className="relative"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
-        </motion.div>
+            {/* Glassmorphic Card */}
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 p-8 relative overflow-hidden">
+              {/* Card Background Effects */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 rounded-3xl"></div>
+              <div className="absolute -top-1 -left-1 -right-1 -bottom-1 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-emerald-500/20 rounded-3xl blur-sm opacity-20"></div>
+              
+              <div className="relative z-10">
+                <form onSubmit={handleStartTrade}>
+                  {/* Error Display */}
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="mb-8 bg-red-500/10 border border-red-500/20 rounded-2xl p-6 backdrop-blur-sm relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-orange-500/5"></div>
+                      <div className="relative flex items-center">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center mr-4">
+                          <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="text-red-300 font-kansas-medium mb-1">Transaction Error</h4>
+                          <p className="text-red-200 font-kansas-light text-sm">{error}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Left Column */}
+                    <div className="space-y-8">
+                      {/* Trade Type Selection */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <label className="block text-lg font-kansas-medium text-white mb-4">
+                          Trade Type
+                        </label>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            { 
+                              type: 'buy' as TradeType, 
+                              icon: TrendingUp, 
+                              label: `Buy ${formData.currency}`, 
+                              color: 'emerald',
+                              description: `Purchase ${formData.currency} with Naira`
+                            },
+                            { 
+                              type: 'sell' as TradeType, 
+                              icon: TrendingDown, 
+                              label: `Sell ${formData.currency}`, 
+                              color: 'rose',
+                              description: `Sell ${formData.currency} for Naira`
+                            }
+                          ].map((option) => (
+                            <motion.button
+                              key={option.type}
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, tradeType: option.type }))}
+                              whileHover={{ scale: 1.02, y: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-hidden ${
+                                formData.tradeType === option.type
+                                  ? `border-${option.color}-500/50 bg-${option.color}-500/10`
+                                  : 'border-slate-600/50 bg-slate-700/20 hover:border-slate-500/50'
+                              }`}
+                            >
+                              {/* Background Glow */}
+                              {formData.tradeType === option.type && (
+                                <div className={`absolute inset-0 bg-gradient-to-br from-${option.color}-500/10 to-transparent`}></div>
+                              )}
+                              
+                              <div className="relative z-10 text-center">
+                                <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                                  formData.tradeType === option.type 
+                                    ? `bg-${option.color}-500/20 border border-${option.color}-500/30` 
+                                    : 'bg-slate-600/30 border border-slate-500/30'
+                                }`}>
+                                  <option.icon className={`w-6 h-6 ${
+                                    formData.tradeType === option.type 
+                                      ? `text-${option.color}-400` 
+                                      : 'text-slate-300'
+                                  }`} />
+                                </div>
+                                <div className={`font-kansas-medium mb-1 ${
+                                  formData.tradeType === option.type 
+                                    ? `text-${option.color}-300` 
+                                    : 'text-white'
+                                }`}>
+                                  {option.label}
+                                </div>
+                                <div className="text-xs text-slate-400 font-kansas-light">
+                                  {option.description}
+                                </div>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      {/* Cryptocurrency Selection */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <label className="block text-lg font-kansas-medium text-white mb-4">
+                          Select Cryptocurrency
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {CURRENCY_OPTIONS.map((currency) => (
+                            <motion.button
+                              key={currency.symbol}
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, currency: currency.symbol }))}
+                              whileHover={{ scale: 1.02, y: -1 }}
+                              whileTap={{ scale: 0.98 }}
+                              className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-hidden ${
+                                formData.currency === currency.symbol
+                                  ? `border-${currency.color}-500/50 bg-${currency.color}-500/10`
+                                  : 'border-slate-600/50 bg-slate-700/20 hover:border-slate-500/50'
+                              }`}
+                            >
+                              {/* Background Glow */}
+                              {formData.currency === currency.symbol && (
+                                <div className={`absolute inset-0 bg-gradient-to-br from-${currency.color}-500/10 to-transparent`}></div>
+                              )}
+                              
+                              <div className="relative z-10 text-center">
+                                <div className={`text-2xl mb-2 font-bold ${
+                                  formData.currency === currency.symbol 
+                                    ? `text-${currency.color}-400` 
+                                    : 'text-slate-300'
+                                }`}>
+                                  {currency.icon}
+                                </div>
+                                <div className={`font-kansas-medium text-sm ${
+                                  formData.currency === currency.symbol 
+                                    ? `text-${currency.color}-300` 
+                                    : 'text-white'
+                                }`}>
+                                  {currency.symbol}
+                                </div>
+                                <div className="text-xs text-slate-400 font-kansas-light mt-1">
+                                  {currency.name}
+                                </div>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      {/* USD Amount Input */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <label className="block text-lg font-kansas-medium text-white mb-4">
+                          USD Amount
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            name="usdAmount"
+                            value={formData.usdAmount}
+                            onChange={handleInputChange}
+                            step="0.01"
+                            min="0"
+                            className="w-full px-6 py-4 pr-20 bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 text-white text-2xl font-kansas-bold placeholder-slate-400"
+                            placeholder="0.00"
+                          />
+                          <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
+                            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full px-3 py-1">
+                              <span className="text-green-400 font-kansas-medium text-sm">USD</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Crypto Amount Display */}
+                        {formData.usdAmount && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-4 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl backdrop-blur-sm"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-300 font-kansas-light">Crypto Amount</span>
+                              <span className={`font-kansas-bold text-xl ${
+                                formData.currency === 'BTC' ? 'text-orange-400' :
+                                formData.currency === 'ETH' ? 'text-blue-400' :
+                                formData.currency === 'BNB' ? 'text-yellow-400' :
+                                formData.currency === 'USDC' ? 'text-cyan-400' :
+                                'text-emerald-400'
+                              }`}>
+                                {cryptoAmount} {formData.currency}
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-2 font-kansas-light">
+                              Rate: 1 {formData.currency} = ${CRYPTO_PRICES_USD[formData.currency as keyof typeof CRYPTO_PRICES_USD]?.toLocaleString() || 'N/A'} USD
+                            </div>
+                          </motion.div>
+                        )}
+
+                        {/* Naira Conversion Display */}
+                        {formData.usdAmount && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-4 p-4 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-2xl backdrop-blur-sm"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-300 font-kansas-light">Naira Equivalent</span>
+                              <span className="text-emerald-400 font-kansas-bold text-xl">
+                                ₦{nairaAmount.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-2 font-kansas-light">
+                              Exchange Rate: 1 USD = ₦{USD_TO_NGN_RATE.toLocaleString()}
+                            </div>
+                          </motion.div>
+                        )}
+                      </motion.div>
+
+                      {/* Payment Method */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <label className="block text-lg font-kansas-medium text-white mb-4">
+                          Payment Method
+                        </label>
+                        <motion.button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'bank_transfer' as PaymentMethod }))}
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full p-6 rounded-2xl border-2 border-blue-500/50 bg-blue-500/10 backdrop-blur-sm transition-all duration-300 relative overflow-hidden group"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-all duration-300"></div>
+                          <div className="relative flex items-center justify-center space-x-4">
+                            <div className="w-12 h-12 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center justify-center">
+                              <Building2 className="w-6 h-6 text-blue-400" />
+                            </div>
+                            <div className="text-left">
+                              <div className="text-blue-300 font-kansas-medium text-lg">Bank Transfer</div>
+                              <div className="text-blue-200/70 font-kansas-light text-sm">Secure Nigerian bank transfer</div>
+                            </div>
+                          </div>
+                        </motion.button>
+                      </motion.div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-8">
+                      {/* Partner Address */}
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.7 }}
+                      >
+                        <label className="block text-lg font-kansas-medium text-white mb-4">
+                          {formData.tradeType === 'buy' ? "Seller's Wallet Address" : "Buyer's Wallet Address"}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="buyerAddress"
+                            value={formData.buyerAddress}
+                            onChange={handleInputChange}
+                            className="w-full px-6 py-4 pl-14 bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 text-white font-kansas-light placeholder-slate-400"
+                            placeholder="0x1234...abcd (Wallet address)"
+                          />
+                          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-full flex items-center justify-center">
+                              <Wallet className="w-4 h-4 text-blue-400" />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Trade Summary */}
+                      {formData.usdAmount && formData.buyerAddress && (
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.8 }}
+                          className="relative"
+                        >
+                          <div className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border border-emerald-500/20 rounded-2xl p-6 backdrop-blur-sm relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-blue-500/5"></div>
+                            
+                            <div className="relative z-10">
+                              <div className="flex items-center mb-6">
+                                <div className="w-10 h-10 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mr-3">
+                                  <CheckCircle className="w-5 h-5 text-emerald-400" />
+                                </div>
+                                <h3 className="text-emerald-400 font-kansas-medium text-lg">Trade Summary</h3>
+                              </div>
+
+                              <div className="space-y-4">
+                                {[
+                                  { label: "Type", value: `${formData.tradeType.toUpperCase()} ${formData.currency}` },
+                                  { label: "USD Amount", value: `$${formData.usdAmount}` },
+                                  { label: "Crypto Amount", value: `${cryptoAmount} ${formData.currency}` },
+                                  { label: "Naira Value", value: `₦${nairaAmount.toLocaleString()}` },
+                                  { label: "Payment", value: "Bank Transfer" },
+                                ].map((item) => (
+                                  <div key={item.label} className="flex justify-between items-center py-2 border-b border-slate-600/30 last:border-b-0">
+                                    <span className="text-slate-300 font-kansas-light">{item.label}:</span>
+                                    <span className="text-white font-kansas-medium">{item.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Security Features */}
+                              <div className="mt-6 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
+                                <div className="space-y-3">
+                                  <div className="flex items-center text-emerald-400 text-sm font-kansas-light">
+                                    <Zap className="w-4 h-4 mr-2" />
+                                    <span>Escrow will be created automatically when you start the trade</span>
+                                  </div>
+                                  <div className="flex items-center text-blue-400 text-sm font-kansas-light">
+                                    <Lock className="w-4 h-4 mr-2" />
+                                    <span>{formData.currency} will be locked safely until payment is confirmed</span>
+                                  </div>
+                                  <div className="flex items-center text-purple-400 text-sm font-kansas-light">
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    <span>Multi-signature protection ensures maximum security</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 }}
+                    className="mt-12"
+                  >
+                    <motion.button
+                      type="submit"
+                      disabled={isLoading || !formData.usdAmount || !formData.buyerAddress}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="group relative w-full bg-gradient-to-r from-emerald-500/20 to-blue-600/20 hover:from-emerald-500/30 hover:to-blue-600/30 disabled:from-slate-600/20 disabled:to-slate-500/20 border border-emerald-500/30 hover:border-emerald-400/50 disabled:border-slate-500/30 backdrop-blur-sm text-white font-kansas-medium py-5 px-8 rounded-2xl transition-all duration-300 shadow-lg overflow-hidden"
+                    >
+                      {/* Button Background Glow */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-blue-600/10 group-hover:from-emerald-500/20 group-hover:to-blue-600/20 transition-all duration-300"></div>
+                      
+                      <div className="relative flex items-center justify-center text-lg">
+                        {isLoading ? (
+                          <>
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full mr-3"
+                            />
+                            <span>Creating Trade...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ArrowRight className="w-6 h-6 mr-3 group-hover:translate-x-1 transition-transform duration-300" />
+                            <span>Start Trade</span>
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                </form>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Footer Navigation */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+            className="mt-12 text-center"
+          >
+            <Link
+              to="/"
+              className="group inline-flex items-center gap-3 text-slate-400 hover:text-slate-300 font-kansas-medium transition-all duration-300 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-full px-6 py-3"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+              <span>Back to Home</span>
+            </Link>
+          </motion.div>
+        </div>
       </div>
     </div>
   )
