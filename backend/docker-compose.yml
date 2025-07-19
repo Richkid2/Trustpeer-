@@ -6,8 +6,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://trustpeer:passwrod:5432/trustpeer
-      - JWT_SECRET_KEY=
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
     depends_on:
       - db
@@ -18,9 +18,9 @@ services:
   db:
     image: postgres:15
     environment:
-      - POSTGRES_DB=trustpeer
-      - POSTGRES_USER=trustpeer
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
