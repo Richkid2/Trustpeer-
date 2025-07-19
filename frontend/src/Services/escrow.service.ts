@@ -8,6 +8,7 @@ export interface TradeDetails {
   currency: string
   description: string
   type: 'buy' | 'sell' | 'exchange'
+  tradeType: 'buy' | 'sell'
   paymentMethod: 'bank_transfer'
   status: TradeStatus
   createdAt: Date
@@ -109,6 +110,7 @@ class EscrowService {
         currency: request.currency,
         description: request.terms,
         type: request.tradeType,
+        tradeType: request.tradeType,
         paymentMethod: request.paymentMethod,
         status: TradeStatus.CREATED,
         createdAt: new Date(),
@@ -334,6 +336,7 @@ class EscrowService {
       currency: 'ETH',
       description: 'Trading ETH for service development',
       type: 'buy',
+      tradeType: 'buy',
       paymentMethod: 'bank_transfer',
       status: TradeStatus.FUNDS_DEPOSITED,
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
