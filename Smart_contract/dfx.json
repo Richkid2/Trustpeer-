@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "Contract_backend": {
+      "main": "src/Contract_backend/escrow.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
