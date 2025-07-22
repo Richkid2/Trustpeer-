@@ -1,17 +1,17 @@
-from fastapi import FastAPI, Depends, HTTPExcption
-from fastapi.middileware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from contextlib import asynccontextmanager
 import uvicorn
 from app.database import engine, Base
-from app.routes import auth, traders, trade, escrow, ratings
+from app.routes import auth, traders, trades, escrow, ratings
 
 # create tables on startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # create database table
     Base.metadata.create_all(bind=engine)
-    yeild
+    yield
     
 app = FastAPI(
     title="TrustPeer P2P Escrow API",
