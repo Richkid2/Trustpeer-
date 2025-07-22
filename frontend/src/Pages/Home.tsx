@@ -425,7 +425,7 @@ const Home = () => {
                 className="group"
               >
                 <Link
-                  to="/search-trader"
+                  to="/browse"
                   className="relative block bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-kansas-bold py-6 px-12 rounded-2xl text-xl transition-all duration-500 shadow-2xl border border-blue-400/20 overflow-hidden min-w-[280px] text-center"
                 >
                   {/* Animated background */}
@@ -806,7 +806,7 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  to="/search-trader"
+                  to="/browse"
                   className="bg-white/10 hover:bg-white/20 border-2 border-white/30 hover:border-white/50 text-white font-bold py-4 px-12 rounded-2xl text-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[250px] block text-center"
                 >
                   Start Trading
@@ -888,7 +888,7 @@ const Home = () => {
               <ul className="space-y-4">
                 <li>
                   <Link
-                    to="/search-trader"
+                    to="/browse"
                     className="text-gray-300 hover:text-[#f5762c] transition-colors duration-200 text-base font-light"
                   >
                     Verify Trader
