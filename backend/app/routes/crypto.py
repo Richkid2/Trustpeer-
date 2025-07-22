@@ -81,7 +81,7 @@ async def calculate_trading_fee(symbol: str, amount: float, db: Session = Depend
         "symbol": symbol,
         "amount": amount,
         "fee": fee,
-        "fee_percentage": config.trading_fee_percentage,
+        "fee_percentage": config.trade_percentage_fee,
         "total_amount": amount + fee
     }
 

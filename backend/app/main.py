@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 from contextlib import asynccontextmanager
 import uvicorn
 from app.database import engine, Base
-from app.routes import auth, traders, trades, escrow, ratings
+from app.routes import auth, traders, trades, escrow, ratings, crypto
 
 # create tables on startup
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.include_router(traders.router, prefix="/api/traders", tags=["Traders"])
 app.include_router(trades.router, prefix="/api/trades", tags=["Trades"])
 app.include_router(escrow.router, prefix="/api/escrow", tags=["Escrow"])
 app.include_router(ratings.router, prefix="/api/ratings", tags=["Ratings"])
+app.include_router(crypto.router, prefix="/api/crypto", tags=["Cryptocurrencies"])
 
 @app.get("/")
 async def root():
