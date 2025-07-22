@@ -84,12 +84,6 @@
   html {
     scroll-behavior: smooth;
   }
-
-  button:focus,
-  a:focus {
-    outline: 2px solid #f5762c;
-    outline-offset: 2px;
-  }
 }
 
 @layer components {
@@ -178,25 +172,25 @@
   }
 
   .text-gradient-primary {
-    background: linear-gradient(135deg, #f5762c 0%, #e53825 100%);
+    background: linear-gradient(135deg, #ee5f0a 0%, #ff7722 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-secondary {
-    background: linear-gradient(135deg, #e53825 0%, #f5762c 100%);
+    background: linear-gradient(135deg, #ff7722 0%, #ee5f0a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .bg-gradient-primary {
-    background: linear-gradient(135deg, #f5762c 0%, #e53825 100%);
+    background: linear-gradient(135deg, #ee5f0a 0%, #ff7722 100%);
   }
 
   .bg-gradient-secondary {
-    background: linear-gradient(135deg, #e53825 0%, #f5762c 100%);
+    background: linear-gradient(135deg, #ff7722 0%, #ee5f0a 100%);
   }
 
   .animate-fade-in-up {
@@ -221,9 +215,9 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(245, 118, 44, 0.5);
+    box-shadow: 0 0 5px rgba(238, 95, 10, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(245, 118, 44, 0.8);
+    box-shadow: 0 0 20px rgba(238, 95, 10, 0.8);
   }
 }
