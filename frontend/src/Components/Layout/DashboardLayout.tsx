@@ -267,7 +267,7 @@ const DashboardLayout = ({
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-[#0a0b0c] border-b border-gray-800 px-4 lg:px-8 py-4 lg:py-6">
+        <header className="bg-[#0a0b0c] border-b border-gray-900 px-4 lg:px-8 py-4 lg:py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Mobile menu button */}
