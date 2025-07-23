@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   Clock, 
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { escrowService } from '../Services/escrow.service'
 import { multiWalletService } from '../Services/wallet.service'
+import DashboardLayout from '../Components/Layout/DashboardLayout'
 import type { TradeDetails } from '../Services/escrow.service'
 
 const EscrowProgress = () => {
@@ -168,27 +169,16 @@ const EscrowProgress = () => {
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }}></div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <DashboardLayout 
+        pageTitle="Wallet Required" 
+        pageDescription="Connect your wallet to view trade progress"
+      >
+        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-gray-800 text-center"
+            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-white/10 text-center"
           >
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
@@ -210,39 +200,32 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-gray-300 mb-10 text-lg leading-relaxed"
+              className="text-white/70 mb-10 text-lg leading-relaxed"
             >
               Connect your wallet to view your <span className="text-[#ee5f0a] font-medium">secure trade progress</span>
             </motion.p>
-            <Link to="/dashboard">
-              <motion.button
-                whileHover={{ 
-                  scale: 1.05, 
-                  y: -2
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-[#ee5f0a]/20 overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                <span className="relative z-10">Connect Wallet</span>
-              </motion.button>
-            </Link>
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/dashboard')}
+              className="group relative w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-[#ee5f0a]/20 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+              <span className="relative z-10">Connect Wallet</span>
+            </motion.button>
           </motion.div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <DashboardLayout 
+        pageTitle="Loading Trade" 
+        pageDescription="Fetching your secure trade details"
+      >
+        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,7 +233,7 @@ const EscrowProgress = () => {
             className="text-center"
           >
             <motion.div 
-              className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+              className="w-24 h-24 bg-[#ee5f0a] rounded-full flex items-center justify-center mx-auto mb-8"
               animate={{ rotate: 360, scale: [1, 1.1, 1] }}
               transition={{ rotate: { duration: 2, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity } }}
             >
@@ -269,7 +252,7 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl font-kansas-black bg-gradient-to-r from-white via-cyan-200 to-blue-400 bg-clip-text text-transparent mb-4"
+              className="text-4xl font-bold text-white mb-4"
             >
               Loading Trade
             </motion.h2>
@@ -277,37 +260,34 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-xl text-slate-300 font-kansas-light"
+              className="text-xl text-white/70"
             >
-              Fetching your <span className="text-cyan-400 font-kansas-medium">secure trade details</span>...
+              Fetching your <span className="text-[#ee5f0a] font-medium">secure trade details</span>...
             </motion.p>
           </motion.div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   if (error || !trade) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <DashboardLayout 
+        pageTitle="Trade Error" 
+        pageDescription="Unable to load trade details"
+      >
+        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
+            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-white/10 text-center"
           >
             <motion.div
               initial={{ scale: 0, rotate: 180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="w-24 h-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(239,68,68,0.4)]"
+              className="w-24 h-24 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-8"
             >
               <AlertCircle className="w-12 h-12 text-white" />
             </motion.div>
@@ -315,7 +295,7 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-red-300 bg-clip-text text-transparent mb-3"
+              className="text-3xl font-bold text-white mb-3"
             >
               Trade Error
             </motion.h2>
@@ -323,27 +303,22 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-slate-300 font-kansas-light mb-10 text-lg leading-relaxed"
+              className="text-white/70 mb-10 text-lg leading-relaxed"
             >
-              {error}
+              {error || 'Trade not found'}
             </motion.p>
-            <Link to="/">
-              <motion.button
-                whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 20px 40px -12px rgba(239, 68, 68, 0.4), 0 0 30px rgba(239, 68, 68, 0.3)",
-                  y: -2
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-red-400/20 overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                <span className="relative z-10">Back to Dashboard</span>
-              </motion.button>
-            </Link>
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/dashboard')}
+              className="group relative w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-red-400/20 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+              <span className="relative z-10">Back to Dashboard</span>
+            </motion.button>
           </motion.div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
@@ -353,23 +328,11 @@ const EscrowProgress = () => {
   const nairaAmount = parseFloat(trade.amount) * exchangeRate
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
-
-      <div className="relative z-10 py-12 px-4">
+    <DashboardLayout 
+      pageTitle="Escrow In Progress" 
+      pageDescription="Your P2P trade is being processed securely"
+    >
+      <div className="flex-1 p-4 lg:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Navigation Header */}
           <motion.div
@@ -880,33 +843,32 @@ const EscrowProgress = () => {
             transition={{ delay: 1.6 }}
             className="mt-16 text-center"
           >
-            <Link to="/">
-              <motion.button
-                whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
-                  y: -2
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="group flex items-center text-purple-400 hover:text-purple-300 font-kansas-medium transition-all duration-300 mx-auto"
+            <motion.button
+              onClick={() => navigate('/dashboard')}
+              whileHover={{ 
+                scale: 1.05, 
+                boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
+                y: -2
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="group flex items-center text-purple-400 hover:text-purple-300 font-kansas-medium transition-all duration-300 mx-auto"
+            >
+              <motion.svg 
+                className="w-5 h-5 mr-2 group-hover:text-purple-300 transition-colors" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                animate={{ x: [-2, 0, -2] }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                <motion.svg 
-                  className="w-5 h-5 mr-2 group-hover:text-purple-300 transition-colors" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                  animate={{ x: [-2, 0, -2] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </motion.svg>
-                Back to Dashboard
-              </motion.button>
-            </Link>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </motion.svg>
+              Back to Dashboard
+            </motion.button>
           </motion.div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }
 
