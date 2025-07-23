@@ -168,10 +168,10 @@ const EscrowProgress = () => {
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950 relative overflow-hidden">
+      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
@@ -188,13 +188,13 @@ const EscrowProgress = () => {
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
+            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-gray-800 text-center"
           >
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
-              className="w-24 h-24 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+              className="w-24 h-24 bg-[#ee5f0a] rounded-full flex items-center justify-center mx-auto mb-8"
             >
               <Shield className="w-12 h-12 text-white" />
             </motion.div>
@@ -202,7 +202,7 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent mb-3"
+              className="text-3xl font-bold text-white mb-3"
             >
               Wallet Required
             </motion.h2>
@@ -210,21 +210,20 @@ const EscrowProgress = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-slate-300 font-kansas-light mb-10 text-lg leading-relaxed"
+              className="text-gray-300 mb-10 text-lg leading-relaxed"
             >
-              Connect your wallet to view your <span className="text-purple-400 font-kansas-medium">secure trade progress</span>
+              Connect your wallet to view your <span className="text-[#ee5f0a] font-medium">secure trade progress</span>
             </motion.p>
-            <Link to="/login">
+            <Link to="/dashboard">
               <motion.button
                 whileHover={{ 
                   scale: 1.05, 
-                  boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.4), 0 0 30px rgba(168, 85, 247, 0.3)",
                   y: -2
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-purple-400/20 overflow-hidden"
+                className="group relative w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-[#ee5f0a]/20 overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
                 <span className="relative z-10">Connect Wallet</span>
               </motion.button>
             </Link>
@@ -236,11 +235,11 @@ const EscrowProgress = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 relative overflow-hidden">
+      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
