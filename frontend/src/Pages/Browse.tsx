@@ -280,12 +280,17 @@ const Browse = () => {
 
   // Start trade with trader
   const handleStartTrade = (trader: Trader) => {
-    navigate('/start-trade', { 
-      state: { 
-        ...locationState, 
-        selectedTrader: trader 
-      } 
-    })
+    const params = new URLSearchParams({
+      traderId: trader.id,
+      username: trader.username,
+      fullName: trader.username, // You might want to add fullName to the Trader interface
+      rating: trader.trustScore.toString(),
+      totalTrades: trader.totalTrades.toString(),
+      rate: '1650', // This should come from the trader data
+      isVerified: trader.verified.toString()
+    });
+    
+    navigate(`/start-trade?${params.toString()}`);
   }
 
   // View trader profile
@@ -335,9 +340,9 @@ const Browse = () => {
   return (
     <div className="min-h-screen bg-[#080909] flex">
       {/* Sidebar */}
-      <div className="hidden lg:flex w-64 bg-[#0a0b0c] border-r border-gray-800 flex-col">
+      <div className="hidden lg:flex w-64 bg-[#0a0b0c] mt-7 border-r border-gray-900 flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-800">
+        <div className="p-6 border-b border-gray-900">
           <div className="flex items-center justify-center">
             <img 
               src="/src/assets/images/trustpeer-logo.png" 
@@ -491,7 +496,6 @@ const Browse = () => {
                 <p className="text-gray-400 text-sm lg:text-base">
                   Find and connect with trusted crypto traders
                 </p>
-                <p className="text-gray-500 text-xs lg:text-sm mt-1">GMT+1: 4C:2D 📍</p>
               </div>
             </div>
             
