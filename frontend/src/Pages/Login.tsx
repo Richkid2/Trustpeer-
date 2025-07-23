@@ -43,7 +43,7 @@ const Login = () => {
         setAuthState(state)
       }
       
-      navigate('/')
+      navigate('/dashboard')
     } catch (error) {
       console.error('Wallet connection failed:', error)
       alert(`Failed to connect ${walletType}: ${error}`)
@@ -395,6 +395,24 @@ const Login = () => {
               </div>
             </motion.div>
           )}
+
+          {/* Register Link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="text-center mt-8 pt-6 border-t border-slate-700/50"
+          >
+            <p className="text-slate-400 text-sm">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
+          </motion.div>
 
           {/* Back to Home */}
           <motion.div 
