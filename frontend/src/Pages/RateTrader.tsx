@@ -11,6 +11,7 @@ import {
 import { ratingService } from '../Services/rating.service'
 import { escrowService } from '../Services/escrow.service'
 import { multiWalletService } from '../Services/wallet.service'
+import DashboardLayout from '../Components/Layout/DashboardLayout'
 import StarRating from '../Components/StarRating'
 import type { TradeDetails } from '../Services/escrow.service'
 
@@ -155,172 +156,177 @@ const RateTrader = () => {
   // Wallet connection screen
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
+      <DashboardLayout>
+        <div className="relative overflow-hidden">
+          {/* Animated background */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          </div>
 
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
-          >
+          <div className="relative z-10 flex items-center justify-center min-h-[80vh] p-4">
             <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
-              className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
             >
-              <Shield className="w-12 h-12 text-white" />
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
+                className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+              >
+                <Shield className="w-12 h-12 text-white" />
+              </motion.div>
+              
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent mb-3"
+              >
+                Wallet Required
+              </motion.h2>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="text-slate-300 font-kansas-light mb-10 text-lg leading-relaxed"
+              >
+                Connect your wallet to rate your trading partner and build <span className="text-purple-400 font-kansas-medium">community trust</span>
+              </motion.p>
+              
+              <div className="space-y-4">
+                <Link to="/login">
+                  <motion.button
+                    whileHover={{ 
+                      scale: 1.05, 
+                      boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.4), 0 0 30px rgba(168, 85, 247, 0.3)",
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group relative w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-purple-400/20 overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
+                    <span className="relative z-10">Connect Wallet</span>
+                  </motion.button>
+                </Link>
+              </div>
             </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent mb-3"
-            >
-              Wallet Required
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="text-slate-300 font-kansas-light mb-10 text-lg leading-relaxed"
-            >
-              Connect your wallet to rate your trading partner and build <span className="text-purple-400 font-kansas-medium">community trust</span>
-            </motion.p>
-            
-            <div className="space-y-4">
-              <Link to="/login">
-                <motion.button
-                  whileHover={{ 
-                    scale: 1.05, 
-                    boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.4), 0 0 30px rgba(168, 85, 247, 0.3)",
-                    y: -2
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  className="group relative w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-purple-400/20 overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                  <span className="relative z-10">Connect Wallet</span>
-                </motion.button>
-              </Link>
-            </div>
-          </motion.div>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   // Success screen
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
+      <DashboardLayout>
+        <div className="relative overflow-hidden">
+          {/* Animated background */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-20 left-10 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          </div>
 
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
-          >
+          <div className="relative z-10 flex items-center justify-center min-h-[80vh] p-4">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: [0, 1.2, 1] }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center"
             >
-              <CheckCircle className="w-12 h-12 text-white" />
-            </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-green-300 bg-clip-text text-transparent mb-3"
-            >
-              Rating Submitted!
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="text-slate-300 font-kansas-light mb-4 text-lg"
-            >
-              Thank you for helping build a trusted trading community
-            </motion.p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: [0, 1.2, 1] }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+              >
+                <CheckCircle className="w-12 h-12 text-white" />
+              </motion.div>
+              
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="text-3xl font-kansas-bold bg-gradient-to-r from-white to-green-300 bg-clip-text text-transparent mb-3"
+              >
+                Rating Submitted!
+              </motion.h2>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="text-slate-300 font-kansas-light mb-4 text-lg"
+              >
+                Thank you for helping build a trusted trading community
+              </motion.p>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0 }}
-              className="text-green-400 font-kansas-medium mb-6"
-            >
-              Redirecting to dashboard...
-            </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+                className="text-green-400 font-kansas-medium mb-6"
+              >
+                Redirecting to dashboard...
+              </motion.div>
 
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 border-2 border-green-400 border-t-transparent rounded-full mx-auto"
-            />
-          </motion.div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 border-2 border-green-400 border-t-transparent rounded-full mx-auto"
+              />
+            </motion.div>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   // Main rating form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
+    <DashboardLayout>
+      <div className="relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
 
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
 
-      <div className="relative z-10 py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Back Button */}
-          <motion.div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-start items-center mb-12"
-          >
-            <motion.button
-              onClick={() => navigate('/')}
-              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.5)" }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center space-x-3 text-slate-400 hover:text-purple-300 transition-all duration-300 bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-xl p-3 rounded-2xl border border-slate-700/50 hover:border-purple-500/30"
+        <div className="relative z-10 py-12 px-4">
+          <div className="max-w-2xl mx-auto">
+            {/* Back Button */}
+            <motion.div
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="flex justify-start items-center mb-12"
             >
-              <svg className="w-6 h-6 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="font-kansas-medium">Back to Dashboard</span>
-            </motion.button>
-          </motion.div>
+              <motion.button
+                onClick={() => navigate('/dashboard')}
+                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.5)" }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center space-x-3 text-slate-400 hover:text-purple-300 transition-all duration-300 bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-xl p-3 rounded-2xl border border-slate-700/50 hover:border-purple-500/30"
+              >
+                <svg className="w-6 h-6 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-kansas-medium">Back to Dashboard</span>
+              </motion.button>
+            </motion.div>
 
           {/* Header */}
           <motion.div
@@ -541,7 +547,8 @@ const RateTrader = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }
 
