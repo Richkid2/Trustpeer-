@@ -6,6 +6,7 @@ import uuid
 from app.models.trade import Trade, TradeStatus, TradeType
 from app.models.user import User
 from app.schemas.trade import TradeCreate, TradeUpdate
+from app.services.crypto_service import CryptoService
 
 class TradeService:
     def __init__(self, db: Session):
@@ -13,6 +14,11 @@ class TradeService:
     
     def create_trade(self, user_id: int, trade_data: TradeCreate) -> Trade:
         """Create a new trade"""
+        # Validate cryptocurrency and amount
+        crypto_service = CryptoService(self.db)
+        if not crypto_service.validate_trade_amount(trade_data.crypto_currency.value, trade_data.crypto_amount):
+            raise ValueError(f"Invalid trade amount for {trade_data.crypto_currency.value}")
+    
         # Generate unique trade ID
         trade_id = f"TP{uuid.uuid4().hex[:8].upper()}"
         

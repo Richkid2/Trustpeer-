@@ -10,14 +10,24 @@ load_dotenv()
 DATABASE_URL=os.getenv("DATABASE_URL", "sqlite:///./trustpeer.db")
 
 # create engine
-if DATABASE_URL.startswith("sqilte"):
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-else:
-    engine = create_engine(DATABASE_URL)
-    
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+)
+
 # create session local class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False)
 
+# create base class
+Base = declarative_base()
+
+# dependency to get database session
+def get_db():
+    db = SessionLocal(bind=engine)
+    try:
+        yield db
+    finally:
+        db.close()
 # create base class
 Base = declarative_base()
 
