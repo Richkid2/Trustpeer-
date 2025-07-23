@@ -102,21 +102,23 @@ const StartTrade = () => {
       // For now, simulate the trade creation since the service expects different parameters
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Navigate to escrow progress with mock data
-      navigate('/escrow-progress', { 
-        state: { 
-          tradeId: 'TR' + Date.now(),
-          tradeData: {
-            traderId: selectedTrader.id,
-            traderName: selectedTrader.fullName,
-            tradeType,
-            amountUSD: parseFloat(amountUSD),
-            amountNaira: parseFloat(nairaAmount),
-            cryptoCurrency,
-            rate: selectedTrader.rate
-          }
-        } 
+      // Generate a mock trade ID
+      const tradeId = 'TR' + Date.now()
+      
+      // Create URL parameters with trade details
+      const params = new URLSearchParams({
+        tradeId,
+        amount: amountUSD,
+        currency: cryptoCurrency,
+        tradeType: tradeType,
+        nairaAmount: nairaAmount,
+        traderName: selectedTrader.fullName,
+        traderId: selectedTrader.id,
+        rate: selectedTrader.rate.toString()
       })
+      
+      // Navigate to escrow progress with trade details
+      navigate(`/escrow-progress?${params.toString()}`)
     } catch (error) {
       console.error('Error creating trade:', error)
       setError('Failed to create trade. Please try again.')
