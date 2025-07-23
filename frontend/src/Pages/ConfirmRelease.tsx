@@ -79,21 +79,21 @@ const ConfirmRelease = () => {
 
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#080909] relative overflow-hidden flex items-center justify-center p-4">
         {/* Animated background */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-md w-full bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 text-center relative z-10"
+          className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-gray-800 text-center relative z-10"
         >
           <motion.div 
-            className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+            className="w-20 h-20 bg-[#ee5f0a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
@@ -101,7 +101,7 @@ const ConfirmRelease = () => {
           </motion.div>
           
           <motion.h2 
-            className="text-2xl font-kansas-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2"
+            className="text-2xl font-bold text-white mb-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -110,7 +110,7 @@ const ConfirmRelease = () => {
           </motion.h2>
           
           <motion.p 
-            className="text-slate-400 font-kansas-light mb-8"
+            className="text-gray-300 mb-8"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -119,15 +119,14 @@ const ConfirmRelease = () => {
           </motion.p>
           
           <div className="space-y-4">
-            <Link to="/login">
+            <Link to="/dashboard">
               <motion.button
                 whileHover={{ 
                   scale: 1.02, 
-                  boxShadow: "0 20px 40px -12px rgba(239, 68, 68, 0.4)",
                   y: -2 
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-kansas-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg"
+                className="w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg"
               >
                 Connect Wallet
               </motion.button>
@@ -137,7 +136,7 @@ const ConfirmRelease = () => {
               <motion.button
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-br from-slate-700/60 to-slate-800/80 backdrop-blur-xl hover:from-slate-600/70 hover:to-slate-700/90 text-slate-200 font-kansas-medium py-4 px-6 rounded-2xl transition-all duration-300 border border-slate-600/50"
+                className="w-full bg-gray-800/60 hover:bg-gray-700/70 text-gray-200 font-medium py-4 px-6 rounded-2xl transition-all duration-300 border border-gray-600/50"
               >
                 Back to Progress
               </motion.button>
@@ -507,15 +506,14 @@ const ConfirmRelease = () => {
             transition={{ delay: 1.8 }}
             className="text-center"
           >
-            <Link to="/">
+            <Link to="/dashboard">
               <motion.button
                 whileHover={{ 
                   scale: 1.05, 
-                  boxShadow: "0 0 20px rgba(6, 182, 212, 0.4)",
                   y: -2
                 }}
                 whileTap={{ scale: 0.95 }}
-                className="group flex items-center text-cyan-400 hover:text-cyan-300 font-kansas-medium transition-all duration-300 mx-auto"
+                className="group flex items-center text-[#ee5f0a] hover:text-[#d54f08] font-medium transition-all duration-300 mx-auto"
               >
                 <motion.svg 
                   className="w-5 h-5 mr-2 group-hover:text-cyan-300 transition-colors" 
@@ -527,7 +525,7 @@ const ConfirmRelease = () => {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </motion.svg>
-                Back to Home
+                Back to Dashboard
               </motion.button>
             </Link>
           </motion.div>
