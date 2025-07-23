@@ -142,8 +142,8 @@ const RateTrader = () => {
       case 1: return 'text-red-400'
       case 2: return 'text-orange-400'
       case 3: return 'text-yellow-400'
-      case 4: return 'text-blue-400'
-      case 5: return 'text-green-400'
+      case 4: return 'text-white'
+      case 5: return 'text-[#ee5f0a]'
       default: return 'text-slate-400'
     }
   }
@@ -155,10 +155,10 @@ const RateTrader = () => {
   // Wallet connection screen
   if (!isWalletConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950 relative overflow-hidden">
+      <div className="min-h-screen bg-[#080909] relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
