@@ -1,162 +1,58 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   Clock, 
   CheckCircle, 
   AlertCircle, 
-  Shield, 
   Copy,
-  DollarSign,
-  CreditCard,
-  User,
-  ArrowRight
+  Timer,
+  Info
 } from 'lucide-react'
-import { escrowService } from '../Services/escrow.service'
-import { multiWalletService } from '../Services/wallet.service'
 import DashboardLayout from '../Components/Layout/DashboardLayout'
-import type { TradeDetails } from '../Services/escrow.service'
 
 const EscrowProgress = () => {
   const [searchParams] = useSearchParams()
-  const [trade, setTrade] = useState<TradeDetails | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [isWalletConnected, setIsWalletConnected] = useState(false)
-  const [paymentSent, setPaymentSent] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(1800)
   const navigate = useNavigate()
+  
+  // Trade details from URL params
+  const tradeId = searchParams.get('tradeId') || ''
+  const amount = searchParams.get('amount') || '0'
+  const currency = searchParams.get('currency') || 'USDT'
+  const tradeType = searchParams.get('tradeType') || 'buy'
+  const nairaAmount = searchParams.get('nairaAmount') || '0'
+  const traderName = searchParams.get('traderName') || 'Trader'
 
-  // Mock exchange rates and bank details 
-  const EXCHANGE_RATES = {
-    USDT: 1650,  // 1 USDT = 1650 NGN
-    BTC: 95000000,  // 1 BTC = 95M NGN
-    ETH: 5200000,   // 1 ETH = 5.2M NGN
-    BNB: 850000,    // 1 BNB = 850k NGN
-    USDC: 1645      // 1 USDC = 1645 NGN
-  }
+  // States
+  const [currentStep, setCurrentStep] = useState(2) // Start at step 2 (payment/deposit step)
+  const [timeRemaining, setTimeRemaining] = useState(1800) // 30 minutes
+  const [copied, setCopied] = useState('')
+  const [autoProgressCountdown, setAutoProgressCountdown] = useState<number | null>(null)
 
+  // Mock bank details
   const bankDetails = {
     bankName: "Access Bank",
     accountNumber: "0123456789",
-    accountName: "John Doe",
+    accountName: "David Michael",
     sortCode: "044"
   }
 
+  // Format time countdown
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  // Helper function to format crypto amount with appropriate precision
-  const formatCryptoAmount = (amount: string): string => {
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount)) return '0';
-    
-    // For very small amounts, show more decimal places
-    if (numAmount < 0.001) {
-      return numAmount.toFixed(12);
-    }
-    // For small amounts, show moderate decimal places  
-    else if (numAmount < 1) {
-      return numAmount.toFixed(8);
-    }
-    // For larger amounts, show fewer decimal places
-    else {
-      return numAmount.toFixed(6);
-    }
-  };
-
-  const checkWalletConnection = () => {
-    const walletState = multiWalletService.getState()
-    setIsWalletConnected(walletState.isConnected)
+  // Copy to clipboard function
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(field)
+    setTimeout(() => setCopied(''), 2000)
   }
 
-  const loadTradeData = useCallback(async () => {
-    const tradeId = searchParams.get('tradeId')
-    if (!tradeId) {
-      setError('Trade ID not provided')
-      setIsLoading(false)
-      return
-    }
-
-    try {
-      const tradeData = await escrowService.getTrade(tradeId)
-      if (!tradeData) {
-        // Get trade details from URL parameters
-        const amount = searchParams.get('amount') || '50'
-        const currency = searchParams.get('currency') || 'USDT'
-        const tradeType = (searchParams.get('tradeType') || 'buy') as 'buy' | 'sell'
-        const nairaAmount = searchParams.get('nairaAmount') || '82500'
-        const traderId = searchParams.get('traderId') || 'trader123'
-        
-        // Create mock trade data with URL parameters
-        const mockTrade: TradeDetails = {
-          id: tradeId,
-          buyer: tradeType === 'buy' ? '0x1234567890123456789012345678901234567890' : traderId,
-          seller: tradeType === 'sell' ? '0x1234567890123456789012345678901234567890' : traderId,
-          amount: amount,
-          currency: currency,
-          description: `${tradeType === 'buy' ? 'Buy' : 'Sell'} ${amount} ${currency} - ₦${parseFloat(nairaAmount).toLocaleString()}`,
-          type: tradeType,
-          tradeType: tradeType,
-          paymentMethod: 'bank_transfer',
-          status: 'created',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          timeline: [
-            { name: 'Trade Created', completed: true, timestamp: new Date(), description: `${tradeType === 'buy' ? 'Buy' : 'Sell'} order has been initiated` },
-            { name: tradeType === 'buy' ? 'Payment Sent' : 'Crypto Deposited', completed: false, description: tradeType === 'buy' ? 'Send Naira payment to trader' : 'Deposit crypto to escrow' },
-            { name: tradeType === 'buy' ? 'Payment Confirmed' : 'Payment Received', completed: false, description: tradeType === 'buy' ? 'Trader confirms Naira payment' : 'Confirm Naira payment received' },
-            { name: tradeType === 'buy' ? 'Crypto Released' : 'Funds Released', completed: false, description: tradeType === 'buy' ? 'Cryptocurrency will be released' : 'Naira funds will be released' }
-          ]
-        }
-        setTrade(mockTrade)
-      } else {
-        setTrade(tradeData)
-      }
-    } catch (error) {
-      console.error('Failed to load trade:', error)
-      // Create mock trade data as fallback with URL parameters
-      const amount = searchParams.get('amount') || '50'
-      const currency = searchParams.get('currency') || 'USDT'
-      const tradeType = (searchParams.get('tradeType') || 'buy') as 'buy' | 'sell'
-      const nairaAmount = searchParams.get('nairaAmount') || '82500'
-      const traderId = searchParams.get('traderId') || 'trader123'
-      
-      const mockTrade: TradeDetails = {
-        id: tradeId,
-        buyer: tradeType === 'buy' ? '0x1234567890123456789012345678901234567890' : traderId,
-        seller: tradeType === 'sell' ? '0x1234567890123456789012345678901234567890' : traderId,
-        amount: amount,
-        currency: currency,
-        description: `${tradeType === 'buy' ? 'Buy' : 'Sell'} ${amount} ${currency} - ₦${parseFloat(nairaAmount).toLocaleString()}`,
-        type: tradeType,
-        tradeType: tradeType,
-        paymentMethod: 'bank_transfer',
-        status: 'created',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        timeline: [
-          { name: 'Trade Created', completed: true, timestamp: new Date(), description: `${tradeType === 'buy' ? 'Buy' : 'Sell'} order has been initiated` },
-          { name: tradeType === 'buy' ? 'Payment Sent' : 'Crypto Deposited', completed: false, description: tradeType === 'buy' ? 'Send Naira payment to trader' : 'Deposit crypto to escrow' },
-          { name: tradeType === 'buy' ? 'Payment Confirmed' : 'Payment Received', completed: false, description: tradeType === 'buy' ? 'Trader confirms Naira payment' : 'Confirm Naira payment received' },
-          { name: tradeType === 'buy' ? 'Crypto Released' : 'Funds Released', completed: false, description: tradeType === 'buy' ? 'Cryptocurrency will be released' : 'Naira funds will be released' }
-        ]
-      }
-      setTrade(mockTrade)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [searchParams])
-
+  // Timer effect
   useEffect(() => {
-    checkWalletConnection()
-    loadTradeData()
-    
-    // Start countdown timer
     const timer = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 0) {
@@ -168,758 +64,352 @@ const EscrowProgress = () => {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [loadTradeData])
+  }, [])
+
+  // Auto-progress for demo purposes (remove when using real API)
+  useEffect(() => {
+    let autoProgressTimer: number
+    let countdownTimer: number
+
+    // For sellers, auto-progress from step 2 to step 3 after 5 seconds
+    if (tradeType === 'sell' && currentStep === 2) {
+      setAutoProgressCountdown(5)
+      countdownTimer = window.setInterval(() => {
+        setAutoProgressCountdown(prev => {
+          if (prev && prev > 1) {
+            return prev - 1
+          }
+          return null
+        })
+      }, 1000)
+
+      autoProgressTimer = window.setTimeout(() => {
+        setCurrentStep(3)
+        setAutoProgressCountdown(null)
+      }, 5000)
+    }
+
+    // For buyers, auto-progress from step 3 to step 4 after 8 seconds (simulating trader confirmation)
+    if (tradeType === 'buy' && currentStep === 3) {
+      setAutoProgressCountdown(8)
+      countdownTimer = window.setInterval(() => {
+        setAutoProgressCountdown(prev => {
+          if (prev && prev > 1) {
+            return prev - 1
+          }
+          return null
+        })
+      }, 1000)
+
+      autoProgressTimer = window.setTimeout(() => {
+        setCurrentStep(4)
+        setAutoProgressCountdown(null)
+        // Navigate to rating page after completing
+        setTimeout(() => {
+          navigate(`/rate-trader?tradeId=${tradeId}&traderName=${traderName}`)
+        }, 3000)
+      }, 8000)
+    }
+
+    return () => {
+      if (autoProgressTimer) {
+        clearTimeout(autoProgressTimer)
+      }
+      if (countdownTimer) {
+        clearInterval(countdownTimer)
+      }
+    }
+  }, [currentStep, tradeType, navigate, tradeId, traderName])
 
   const handlePaymentSent = () => {
-    setPaymentSent(true)
+    setCurrentStep(3)
   }
 
-  const handlePaymentReceived = async () => {
-    if (!trade) return
-    
-    setActionLoading('confirm')
-    try {
-      await escrowService.confirmTrade(trade.id)
-      await loadTradeData()
-    } catch (error) {
-      console.error('Failed to confirm payment:', error)
-      setError(error instanceof Error ? error.message : 'Failed to confirm payment')
-    } finally {
-      setActionLoading(null)
-    }
+  const handleConfirmPayment = () => {
+    setCurrentStep(4)
+    // Navigate to rating page after a short delay
+    setTimeout(() => {
+      navigate(`/rate-trader?tradeId=${tradeId}&traderName=${traderName}`)
+    }, 2000)
   }
-
-  const handleReleaseCrypto = async () => {
-    if (!trade) return
-    
-    setActionLoading('release')
-    try {
-      await escrowService.releaseFunds(trade.id)
-      navigate(`/rate-trader?tradeId=${trade.id}&traderAddress=${getCurrentUserAddress() === trade.buyer ? trade.seller : trade.buyer}`)
-    } catch (error) {
-      console.error('Failed to release crypto:', error)
-      setError(error instanceof Error ? error.message : 'Failed to release crypto')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    // You could add a toast notification here
-  }
-
-  const getCurrentUserAddress = () => {
-    const walletState = multiWalletService.getState()
-    return walletState.primaryWallet?.address || ''
-  }
-
-  const isUserBuyer = () => {
-    return getCurrentUserAddress() === trade?.buyer
-  }
-
-  const isUserSeller = () => {
-    return getCurrentUserAddress() === trade?.seller
-  }
-
-  if (!isWalletConnected) {
-    return (
-      <DashboardLayout 
-        pageTitle="Wallet Required" 
-        pageDescription="Connect your wallet to view trade progress"
-      >
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-white/10 text-center"
-          >
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
-              className="w-24 h-24 bg-[#ee5f0a] rounded-full flex items-center justify-center mx-auto mb-8"
-            >
-              <Shield className="w-12 h-12 text-white" />
-            </motion.div>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-3xl font-bold text-white mb-3"
-            >
-              Wallet Required
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="text-white/70 mb-10 text-lg leading-relaxed"
-            >
-              Connect your wallet to view your <span className="text-[#ee5f0a] font-medium">secure trade progress</span>
-            </motion.p>
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/dashboard')}
-              className="group relative w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-[#ee5f0a]/20 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-              <span className="relative z-10">Connect Wallet</span>
-            </motion.button>
-          </motion.div>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <DashboardLayout 
-        pageTitle="Loading Trade" 
-        pageDescription="Fetching your secure trade details"
-      >
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <motion.div 
-              className="w-24 h-24 bg-[#ee5f0a] rounded-full flex items-center justify-center mx-auto mb-8"
-              animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-              transition={{ rotate: { duration: 2, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity } }}
-            >
-              <motion.svg 
-                className="w-12 h-12 text-white" 
-                fill="none" 
-                viewBox="0 0 24 24"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </motion.svg>
-            </motion.div>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl font-bold text-white mb-4"
-            >
-              Loading Trade
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-xl text-white/70"
-            >
-              Fetching your <span className="text-[#ee5f0a] font-medium">secure trade details</span>...
-            </motion.p>
-          </motion.div>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  if (error || !trade) {
-    return (
-      <DashboardLayout 
-        pageTitle="Trade Error" 
-        pageDescription="Unable to load trade details"
-      >
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-md w-full bg-[#0f1011] rounded-3xl shadow-lg p-8 border border-white/10 text-center"
-          >
-            <motion.div
-              initial={{ scale: 0, rotate: 180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="w-24 h-24 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-8"
-            >
-              <AlertCircle className="w-12 h-12 text-white" />
-            </motion.div>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-3xl font-bold text-white mb-3"
-            >
-              Trade Error
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="text-white/70 mb-10 text-lg leading-relaxed"
-            >
-              {error || 'Trade not found'}
-            </motion.p>
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/dashboard')}
-              className="group relative w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 border border-red-400/20 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-              <span className="relative z-10">Back to Dashboard</span>
-            </motion.button>
-          </motion.div>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  // Calculate Naira amount based on crypto amount and currency
-  const currency = trade.currency || 'USDT'
-  const exchangeRate = EXCHANGE_RATES[currency as keyof typeof EXCHANGE_RATES] || 1650
-  const nairaAmount = parseFloat(trade.amount) * exchangeRate
 
   return (
     <DashboardLayout 
-      pageTitle="Escrow In Progress" 
-      pageDescription="Your P2P trade is being processed securely"
+      pageTitle="Escrow" 
+      pageDescription={`${tradeId}`}
     >
-      <div className="flex-1 p-4 lg:p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Navigation Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-start items-center mb-12"
-          >
-            <motion.button
-              onClick={() => navigate('/')}
-              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.5)" }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center space-x-3 text-slate-400 hover:text-purple-300 transition-all duration-300 bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-xl p-3 rounded-2xl border border-slate-700/50 hover:border-purple-500/30"
-            >
-              <svg className="w-6 h-6 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="font-kansas-medium">Back to Dashboard</span>
-            </motion.button>
-          </motion.div>
+      <div className="flex flex-col lg:flex-row h-full">
+        {/* Left Sidebar */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full lg:w-80 bg-[#0f1011] border-b lg:border-b-0 lg:border-r border-white/10 p-4 lg:p-6 flex flex-col"
+        >
+          {/* Action Buttons - Moved to top */}
+          <div className="flex gap-2 mb-6">
+            <button className="flex-1 bg-red-500/10 border border-red-500/20 text-red-400 py-2 px-2 lg:px-3 rounded-lg hover:bg-red-500/20 transition-colors flex items-center justify-center gap-1 lg:gap-2 text-xs lg:text-sm">
+              <AlertCircle className="w-4 h-4" />
+              <span className="hidden sm:inline lg:hidden xl:inline">End Transaction</span>
+              <span className="sm:hidden lg:inline xl:hidden">End</span>
+            </button>
+            <button className="flex-1 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 py-2 px-2 lg:px-3 rounded-lg hover:bg-yellow-500/20 transition-colors flex items-center justify-center gap-1 lg:gap-2 text-xs lg:text-sm">
+              <Info className="w-4 h-4" />
+              <span className="hidden sm:inline lg:hidden xl:inline">Report Dispute</span>
+              <span className="sm:hidden lg:inline xl:hidden">Report</span>
+            </button>
+          </div>
 
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <motion.h1 
-              className="text-5xl md:text-6xl font-kansas-black bg-gradient-to-r from-white via-purple-200 to-cyan-400 bg-clip-text text-transparent mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              Escrow <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text">In Progress</span>
-            </motion.h1>
-            <motion.p 
-              className="text-xl text-slate-400 font-kansas-light max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              Your P2P trade is being processed with <span className="text-emerald-400 font-kansas-medium">military-grade security</span>
-            </motion.p>
-          </motion.div>
+          {/* Trade ID */}
+          <div className="mb-4">
+            <h1 className="text-xl lg:text-2xl font-bold text-white">{tradeId}</h1>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-green-500 text-sm font-medium">Ongoing</span>
+            </div>
+          </div>
 
           {/* Timer */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Timer className="w-4 h-4 text-white/70" />
+              <span className="text-white/70 text-sm">{formatTime(timeRemaining)}</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Main Content */}
+        <div className="flex-1 p-4 lg:p-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="max-w-2xl mx-auto mb-12"
+            className="max-w-2xl mx-auto"
           >
-            <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-3xl p-8 text-center backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-              <div className="flex items-center justify-center mb-6">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="w-8 h-8 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl flex items-center justify-center mr-4"
-                >
-                  <Clock className="w-4 h-4 text-white" />
-                </motion.div>
-                <h3 className="text-xl font-kansas-bold text-orange-400">Time Remaining</h3>
-              </div>
-              <motion.div 
-                className="text-5xl font-kansas-black text-white mb-4"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                {formatTime(timeRemaining)}
-              </motion.div>
-              <p className="text-slate-300 font-kansas-light">Complete the payment before the timer expires</p>
-            </div>
-          </motion.div>
+            {/* Trade Info Header */}
+            <h2 className="text-xl font-semibold text-white mb-6">Trade Info</h2>
 
-          {/* Trade Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0 }}
-            className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50 mb-12"
-          >
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mr-4"
-                >
-                  <Shield className="w-5 h-5 text-white" />
-                </motion.div>
-                <h2 className="text-2xl font-kansas-bold text-white">Trade Summary</h2>
+            {/* Trade Details */}
+            <div className="bg-[#0f1011] rounded-xl p-6 border border-white/10 mb-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-white/70 text-sm">Amount {tradeType === 'buy' ? 'to Receive' : 'Sent'}</span>
+                  <span className="text-white font-medium">{amount} {currency}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-white/70 text-sm">Amount {tradeType === 'buy' ? 'to Send' : 'to Receive'}</span>
+                  <span className="text-white font-medium">₦ {parseFloat(nairaAmount).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-white/70 text-sm">Escrow Fee</span>
+                  <span className="text-white font-medium">0.5% (₦ 720)</span>
+                </div>
               </div>
-              <motion.div 
-                className="bg-emerald-500/10 border border-emerald-500/20 px-6 py-3 rounded-full"
-                animate={{ opacity: [0.8, 1, 0.8] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <span className="text-emerald-400 font-kansas-medium">🟢 Active</span>
-              </motion.div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">{currency} Amount</p>
-                  <p className="text-white text-3xl font-kansas-black">{formatCryptoAmount(trade.amount)} {currency}</p>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl p-6 border border-emerald-500/20"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">Naira Equivalent</p>
-                  <p className="text-emerald-400 text-2xl font-kansas-bold">₦{nairaAmount.toLocaleString()}</p>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">Exchange Rate</p>
-                  <p className="text-white font-kansas-medium">1 {currency} = ₦{exchangeRate.toLocaleString()}</p>
-                </motion.div>
-              </div>
-              <div className="space-y-6">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">Trade Type</p>
-                  <p className="text-white font-kansas-medium">{trade.tradeType === 'buy' ? `Buy ${currency}` : `Sell ${currency}`}</p>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">Payment Method</p>
-                  <p className="text-white font-kansas-medium capitalize">{trade.paymentMethod?.replace('_', ' ')}</p>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-gradient-to-br from-slate-700/30 to-slate-800/50 rounded-2xl p-6 border border-slate-600/50"
-                >
-                  <p className="text-slate-400 text-sm mb-2 font-kansas-medium">Trade ID</p>
-                  <p className="text-cyan-400 font-mono text-sm font-kansas-light">{trade.id}</p>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Buyer Instructions */}
-            {isUserBuyer() && (
+            {/* Bank Details for Buyer */}
+            {tradeType === 'buy' && currentStep === 2 && (
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.2 }}
-                className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-6"
               >
-                <div className="flex items-center mb-8">
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mr-4"
-                  >
-                    <User className="w-5 h-5 text-white" />
-                  </motion.div>
-                  <h3 className="text-xl font-kansas-bold text-white">Buyer Instructions</h3>
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4">
+                  <h4 className="text-blue-400 font-medium mb-2">Payment Instructions</h4>
+                  <ul className="text-blue-300 text-sm space-y-1">
+                    <li>• Make payment to the bank details below using the EXACT amount</li>
+                    <li>• Use your registered name when sending payment</li>
+                    <li>• Do not mention "crypto" or "Bitcoin" in payment reference</li>
+                    <li>• Click "I've Sent the Payment" only after successful transfer</li>
+                  </ul>
                 </div>
 
-                <div className="space-y-6">
-                  <motion.div 
-                    className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-3xl p-6 backdrop-blur-sm"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <h4 className="text-blue-400 font-kansas-bold mb-4 flex items-center">
-                      <DollarSign className="w-5 h-5 mr-2" />
-                      Payment Details
-                    </h4>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Bank Name:</span>
-                        <span className="text-white font-kansas-bold">{bankDetails.bankName}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Account Number:</span>
-                        <div className="flex items-center">
-                          <span className="text-white font-mono mr-3 font-kansas-bold">{bankDetails.accountNumber}</span>
-                          <motion.button
-                            onClick={() => copyToClipboard(bankDetails.accountNumber)}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="text-blue-400 hover:text-blue-300 p-1 rounded-lg hover:bg-blue-400/10 transition-all"
-                          >
-                            <Copy className="w-4 h-4" />
-                          </motion.button>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Account Name:</span>
-                        <span className="text-white font-kansas-bold">{bankDetails.accountName}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Amount to Pay:</span>
-                        <span className="text-emerald-400 font-kansas-black text-lg">₦{nairaAmount.toLocaleString()}</span>
-                      </div>
+                <h3 className="text-white font-medium mb-4">Send payment to:</h3>
+                <div className="bg-[#0f1011] rounded-xl p-4 lg:p-6 border border-white/10 space-y-4">
+                  <div>
+                    <label className="text-white/50 text-sm">Bank Name</label>
+                    <div className="flex items-center justify-between bg-[#1a1b1c] p-3 rounded-lg mt-1">
+                      <span className="text-white text-sm lg:text-base">{bankDetails.bankName}</span>
+                      <button
+                        onClick={() => copyToClipboard(bankDetails.bankName, 'bank')}
+                        className="text-[#ee5f0a] hover:text-[#d54f08] transition-colors p-1"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
                     </div>
-                  </motion.div>
+                  </div>
 
-                  <motion.div 
-                    className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl p-5 backdrop-blur-sm"
-                    animate={{ opacity: [0.8, 1, 0.8] }}
-                    transition={{ duration: 3, repeat: Infinity }}
+                  <div>
+                    <label className="text-white/50 text-sm">Account Number</label>
+                    <div className="flex items-center justify-between bg-[#1a1b1c] p-3 rounded-lg mt-1">
+                      <span className="text-white font-mono text-sm lg:text-base">{bankDetails.accountNumber}</span>
+                      <button
+                        onClick={() => copyToClipboard(bankDetails.accountNumber, 'account')}
+                        className="text-[#ee5f0a] hover:text-[#d54f08] transition-colors p-1"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-white/50 text-sm">Account Name</label>
+                    <div className="flex items-center justify-between bg-[#1a1b1c] p-3 rounded-lg mt-1">
+                      <span className="text-white text-sm lg:text-base">{bankDetails.accountName}</span>
+                      <button
+                        onClick={() => copyToClipboard(bankDetails.accountName, 'name')}
+                        className="text-[#ee5f0a] hover:text-[#d54f08] transition-colors p-1"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-white/50 text-sm">Amount to Send</label>
+                    <div className="bg-[#ee5f0a]/10 border border-[#ee5f0a]/20 p-3 rounded-lg mt-1">
+                      <span className="text-[#ee5f0a] font-bold text-lg">₦{parseFloat(nairaAmount).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {copied && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-green-500/20 border border-green-500/30 text-green-400 text-sm p-3 rounded-lg mt-3"
                   >
-                    <div className="flex items-start">
-                      <AlertCircle className="w-6 h-6 text-yellow-400 mr-4 mt-0.5" />
-                      <div>
-                        <p className="text-yellow-400 font-kansas-bold mb-2">⚠️ Important</p>
-                        <p className="text-slate-300 text-sm font-kansas-light">
-                          Send exactly ₦{nairaAmount.toLocaleString()} to the account above. 
-                          Use "{trade.id}" as the payment reference.
+                    ✓ {copied === 'bank' ? 'Bank name' : copied === 'account' ? 'Account number' : 'Account name'} copied to clipboard!
+                  </motion.div>
+                )}
+
+                <motion.button
+                  onClick={handlePaymentSent}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 mt-4"
+                >
+                  I've Sent the Payment
+                </motion.button>
+
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mt-3">
+                  <p className="text-green-400 text-xs text-center">
+                    🚀 Demo Mode: Click button above to advance, or it will auto-advance when trader confirms
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Seller Step 2: Wait for Buyer Payment */}
+            {tradeType === 'sell' && currentStep === 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center mb-6"
+              >
+                <div className="bg-[#0f1011] rounded-xl p-6 border border-white/10">
+                  <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Clock className="w-8 h-8 text-blue-400 animate-pulse" />
+                  </div>
+                  <h3 className="text-white font-medium mb-2">Waiting for Buyer Payment</h3>
+                  <p className="text-white/70 text-sm mb-6">
+                    The buyer is sending ₦{parseFloat(nairaAmount).toLocaleString()} to your account. You will be notified when payment is received.
+                  </p>
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4">
+                    <p className="text-blue-400 text-sm">
+                      💡 Your {amount} {currency} is safely held in escrow and will be released once you confirm payment.
+                    </p>
+                  </div>
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <p className="text-green-400 text-xs">
+                      🚀 Demo Mode: Auto-advancing to next step in {autoProgressCountdown || 5} seconds...
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Waiting for Confirmation */}
+            {currentStep === 3 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-6"
+              >
+                <div className="bg-[#0f1011] rounded-xl p-6 border border-white/10 text-center">
+                  <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Clock className="w-8 h-8 text-amber-400 animate-pulse" />
+                  </div>
+                  
+                  {tradeType === 'buy' ? (
+                    <>
+                      <h3 className="text-white font-medium mb-2">Payment Sent - Waiting for Confirmation</h3>
+                      <p className="text-white/70 text-sm mb-4">
+                        The trader will confirm your payment and release the {amount} {currency} to your wallet.
+                      </p>
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-4">
+                        <p className="text-amber-400 text-sm">
+                          ⏳ Please wait while the trader confirms your payment. This usually takes a few minutes.
                         </p>
                       </div>
-                    </div>
-                  </motion.div>
-
-                  <motion.button
-                    whileHover={{ 
-                      scale: 1.02, 
-                      boxShadow: "0 20px 40px -12px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.3)",
-                      y: -2
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handlePaymentSent}
-                    disabled={paymentSent}
-                    className="group relative w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 disabled:from-slate-600 disabled:to-slate-500 text-white font-kansas-bold py-4 px-6 rounded-3xl transition-all duration-300 shadow-lg flex items-center justify-center overflow-hidden"
-                  >
-                    {!paymentSent && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                    )}
-                    <span className="relative z-10 flex items-center gap-3">
-                      {paymentSent ? (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          Payment Sent ✓
-                        </>
-                      ) : (
-                        <>
-                          <DollarSign className="w-5 h-5" />
-                          I Have Sent Payment
-                        </>
-                      )}
-                    </span>
-                  </motion.button>
-
-                  {paymentSent && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-2xl p-5 backdrop-blur-sm"
-                    >
-                      <div className="flex items-center">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <CheckCircle className="w-6 h-6 text-emerald-400 mr-4" />
-                        </motion.div>
-                        <div>
-                          <p className="text-emerald-400 font-kansas-bold">Payment Confirmed</p>
-                          <p className="text-slate-300 text-sm font-kansas-light">Waiting for seller to confirm receipt and release {currency}...</p>
-                        </div>
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                        <p className="text-green-400 text-xs">
+                          🚀 Demo Mode: Auto-completing trade in {autoProgressCountdown || 8} seconds...
+                        </p>
                       </div>
-                    </motion.div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-white font-medium mb-2">Confirm Payment Received</h3>
+                      <p className="text-white/70 text-sm mb-6">
+                        Did you receive ₦{parseFloat(nairaAmount).toLocaleString()} from the buyer?
+                      </p>
+                      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-6">
+                        <p className="text-yellow-400 text-sm">
+                          ⚠️ Only confirm if you have received the full payment amount. Once confirmed, the {amount} {currency} will be released to the buyer.
+                        </p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <motion.button
+                          onClick={handleConfirmPayment}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 bg-[#ee5f0a] hover:bg-[#d54f08] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300"
+                        >
+                          Yes, Release Crypto
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-400 font-medium py-3 px-6 rounded-xl transition-all duration-300"
+                        >
+                          No, Dispute
+                        </motion.button>
+                      </div>
+                    </>
                   )}
                 </div>
               </motion.div>
             )}
 
-            {/* Seller Instructions */}
-            {isUserSeller() && (
+            {/* Trade Completed */}
+            {currentStep === 4 && (
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.2 }}
-                className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center"
               >
-                <div className="flex items-center mb-8">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-4"
-                  >
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </motion.div>
-                  <h3 className="text-xl font-kansas-bold text-white">Seller Instructions</h3>
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-
-                <div className="space-y-6">
-                  <motion.div 
-                    className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-3xl p-6 backdrop-blur-sm"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <h4 className="text-purple-400 font-kansas-bold mb-4 flex items-center">
-                      <CreditCard className="w-5 h-5 mr-2" />
-                      Expected Payment
-                    </h4>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Amount Expected:</span>
-                        <span className="text-emerald-400 font-kansas-black text-lg">₦{nairaAmount.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Payment Reference:</span>
-                        <span className="text-cyan-400 font-mono font-kansas-light">{trade.id}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-300 font-kansas-medium">Your Bank Account:</span>
-                        <span className="text-white font-kansas-bold">{bankDetails.accountNumber}</span>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  <motion.div 
-                    className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-2xl p-5 backdrop-blur-sm"
-                    animate={{ opacity: [0.8, 1, 0.8] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <div className="flex items-start">
-                      <Clock className="w-6 h-6 text-orange-400 mr-4 mt-0.5" />
-                      <div>
-                        <p className="text-orange-400 font-kansas-bold mb-2">⏰ Waiting for Payment</p>
-                        <p className="text-slate-300 text-sm font-kansas-light">
-                          The buyer has {formatTime(timeRemaining)} to send the payment. 
-                          Check your bank account and confirm once received.
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  <div className="space-y-4">
-                    <motion.button
-                      whileHover={{ 
-                        scale: 1.02, 
-                        boxShadow: "0 20px 40px -12px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.3)",
-                        y: -2
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handlePaymentReceived}
-                      disabled={actionLoading === 'confirm'}
-                      className="group relative w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 disabled:from-slate-600 disabled:to-slate-500 text-white font-kansas-bold py-4 px-6 rounded-3xl transition-all duration-300 shadow-lg flex items-center justify-center overflow-hidden"
-                    >
-                      {actionLoading !== 'confirm' && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                      )}
-                      <span className="relative z-10 flex items-center gap-3">
-                        {actionLoading === 'confirm' ? (
-                          <>
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                            />
-                            Confirming...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-5 h-5" />
-                            Payment Received
-                          </>
-                        )}
-                      </span>
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ 
-                        scale: 1.02, 
-                        boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)",
-                        y: -2
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleReleaseCrypto}
-                      disabled={actionLoading === 'release'}
-                      className="group relative w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-slate-600 disabled:to-slate-500 text-white font-kansas-bold py-4 px-6 rounded-3xl transition-all duration-300 shadow-lg flex items-center justify-center overflow-hidden"
-                    >
-                      {actionLoading !== 'release' && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                      )}
-                      <span className="relative z-10 flex items-center gap-3">
-                        {actionLoading === 'release' ? (
-                          <>
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                            />
-                            Releasing...
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight className="w-5 h-5" />
-                            Release {currency}
-                          </>
-                        )}
-                      </span>
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Security Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 }}
-              className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8 border border-slate-700/50"
-            >
-              <div className="flex items-center mb-8">
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mr-4"
-                >
-                  <Shield className="w-5 h-5 text-white" />
-                </motion.div>
-                <h3 className="text-xl font-kansas-bold text-white">Security & Protection</h3>
-              </div>
-
-              <div className="space-y-6">
-                <motion.div 
-                  className="flex items-start group"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <CheckCircle className="w-6 h-6 text-emerald-400 mr-4 mt-0.5" />
-                  </motion.div>
-                  <div>
-                    <p className="text-white font-kansas-bold mb-1">🔐 Escrow Protection</p>
-                    <p className="text-slate-300 text-sm font-kansas-light">Your {formatCryptoAmount(trade.amount)} {currency} is safely locked in smart contract escrow</p>
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                  className="flex items-start group"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-                  >
-                    <CheckCircle className="w-6 h-6 text-emerald-400 mr-4 mt-0.5" />
-                  </motion.div>
-                  <div>
-                    <p className="text-white font-kansas-bold mb-1">⚡ Automated Release</p>
-                    <p className="text-slate-300 text-sm font-kansas-light">{currency} is released automatically when payment is confirmed</p>
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                  className="flex items-start group"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 4, repeat: Infinity, delay: 1 }}
-                  >
-                    <CheckCircle className="w-6 h-6 text-emerald-400 mr-4 mt-0.5" />
-                  </motion.div>
-                  <div>
-                    <p className="text-white font-kansas-bold mb-1">🛡️ Dispute Resolution</p>
-                    <p className="text-slate-300 text-sm font-kansas-light">24/7 support team available for any disputes</p>
-                  </div>
-                </motion.div>
-              </div>
-
-              <motion.div 
-                className="mt-8 p-6 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-3xl backdrop-blur-sm"
-                animate={{ opacity: [0.8, 1, 0.8] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              >
-                <p className="text-emerald-400 text-sm font-kansas-medium text-center flex items-center justify-center">
-                  <motion.span
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="mr-2 text-lg"
-                  >
-                    🔒
-                  </motion.span>
-                  Your funds are protected by TrustPeer's secure escrow system
+                <h3 className="text-white font-medium mb-2">Trade Completed Successfully!</h3>
+                <p className="text-white/70 text-sm mb-6">
+                  Your trade has been completed. You will be redirected to rate your trading partner.
                 </p>
               </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Back Link */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6 }}
-            className="mt-16 text-center"
-          >
-            <motion.button
-              onClick={() => navigate('/dashboard')}
-              whileHover={{ 
-                scale: 1.05, 
-                boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
-                y: -2
-              }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center text-purple-400 hover:text-purple-300 font-kansas-medium transition-all duration-300 mx-auto"
-            >
-              <motion.svg 
-                className="w-5 h-5 mr-2 group-hover:text-purple-300 transition-colors" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                animate={{ x: [-2, 0, -2] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </motion.svg>
-              Back to Dashboard
-            </motion.button>
+            )}
           </motion.div>
         </div>
       </div>

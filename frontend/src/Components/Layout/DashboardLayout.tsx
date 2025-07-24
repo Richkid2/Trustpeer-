@@ -57,7 +57,7 @@ const DashboardLayout = ({
   const [hasNewNotifications, setHasNewNotifications] = useState(true)
   const [notificationCount, setNotificationCount] = useState(3)
 
-  // Use external setShowMobileMenu if provided, otherwise use internal state
+  
   const toggleMobileMenu = (show: boolean) => {
     if (setShowMobileMenu) {
       setShowMobileMenu(show)

@@ -753,7 +753,7 @@ const Browse = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#ee5f0a] to-[#d54f08] rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#ee5f0a] rounded-full flex items-center justify-center">
                               <span className="text-white font-bold text-sm sm:text-base">
                                 {trader.username.substring(0, 2).toUpperCase()}
                               </span>
