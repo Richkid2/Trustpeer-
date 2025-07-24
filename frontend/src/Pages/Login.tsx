@@ -48,13 +48,12 @@ const Login = () => {
     setIsLoading(true)
     
     try {
-      // Simulate API call - replace with actual authentication
       await new Promise(resolve => setTimeout(resolve, 1500))
       
       // Mock successful login
       setAuthState({
         isAuthenticated: true,
-        principal: null, // Will be set by actual auth service
+        principal: null, 
         identity: null
       })
       
