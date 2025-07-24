@@ -99,7 +99,7 @@ const StartTrade = () => {
     setError('')
 
     try {
-      // For now, simulate the trade creation since the service expects different parameters
+      // Simulate trade creation
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       // Generate a mock trade ID
