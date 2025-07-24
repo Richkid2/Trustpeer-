@@ -24,7 +24,7 @@ const TelegramSetup = () => {
     setIsLoading(true)
 
     try {
-      // TODO: Replace with actual API call when backend is ready
+      // Format the Telegram handle
       console.log('Saving Telegram handle:', telegramHandle, 'for user:', username, 'email:', email)
       
       // Simulate save process

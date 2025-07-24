@@ -1,17 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Zap, Shield, Lock, MessageCircle, Rocket, Search } from "lucide-react";
-import { multiWalletService } from "../Services/wallet.service";
-import type { MultiWalletState } from "../Services/wallet.service";
+import { Shield, Lock, Zap, Star, Users, ArrowRight, CheckCircle } from "lucide-react";
 
 const Home = () => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
-  const [walletState, setWalletState] = useState<MultiWalletState>(
-    multiWalletService.getState()
-  );
-  const fullText = "Trade Crypto";
+  const fullText = "Trade Crypto Safely";
 
   useEffect(() => {
     let index = 0;
@@ -28,33 +23,18 @@ const Home = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    // Check wallet connection status
-    const checkWalletConnection = () => {
-      setWalletState(multiWalletService.getState());
-    };
-
-    checkWalletConnection();
-
-    // wallet connection changes
-    const interval = setInterval(checkWalletConnection, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+    <div className="min-h-screen bg-[#080909] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ee5f0a]/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       {/* Grid pattern overlay */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(238,95,10,0.3) 1px, transparent 0)',
           backgroundSize: '40px 40px'
         }}></div>
       </div>
@@ -63,7 +43,7 @@ const Home = () => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative z-20 border-b border-slate-700/30 backdrop-blur-2xl bg-slate-900/20"
+        className="relative z-20 border-b border-gray-800/50 backdrop-blur-2xl bg-[#0f1011]/80"
       >
         <div className="w-full px-4 md:px-6 lg:px-16 xl:px-24">
           <div className="flex justify-between items-center py-6">
@@ -81,10 +61,10 @@ const Home = () => {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 to-blue-600/30 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-150"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#ee5f0a]/30 to-[#d54f08]/30 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-150"></div>
               </div>
               <motion.span 
-                className="text-3xl font-kansas-bold bg-gradient-to-r from-white via-cyan-200 to-blue-400 bg-clip-text text-transparent"
+                className="text-3xl font-bold bg-gradient-to-r from-white via-gray-200 to-[#ee5f0a] bg-clip-text text-transparent"
                 whileHover={{ scale: 1.05 }}
               >
                 TrustPeer
@@ -95,78 +75,39 @@ const Home = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="hidden md:block"
+              className="hidden md:flex items-center gap-4"
             >
-              {walletState.isConnected ? (
-                <div className="flex items-center space-x-6">
-                  <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-500/30 rounded-2xl backdrop-blur-sm"
-                  >
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <div className="text-green-300 text-sm font-kansas-medium">
-                      {walletState.primaryWallet?.type} Connected
-                    </div>
-                  </motion.div>
-                  <Link to="/dashboard">
-                    <motion.button
-                      whileHover={{ 
-                        scale: 1.05, 
-                        boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)",
-                        y: -2
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className="group relative bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-kansas-bold py-4 px-8 rounded-2xl transition-all duration-300 border border-blue-400/20 overflow-hidden"
-                    >
-                      {/* Shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                      <span className="relative z-10">Dashboard</span>
-                    </motion.button>
-                  </Link>
-                </div>
-              ) : (
-                <Link to="/login">
-                  <motion.button
-                    whileHover={{ 
-                      scale: 1.05, 
-                      boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)",
-                      y: -2
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-kansas-bold py-4 px-8 rounded-2xl transition-all duration-300 border border-blue-400/20 overflow-hidden"
-                  >
-                    {/* Animated background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    {/* Shine effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                    
-                    <span className="relative z-10 flex items-center gap-2">
-                      <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                      >
-                        <Rocket size={20} className="text-white" />
-                      </motion.div>
-                      Connect Wallet
-                    </span>
-                  </motion.button>
-                </Link>
-              )}
+              <Link to="/login">
+                <motion.button
+                  whileHover={{ 
+                    scale: 1.02, 
+                    boxShadow: "0 8px 20px -8px rgba(238, 95, 10, 0.3)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-transparent border-2 border-[#ee5f0a] hover:bg-[#ee5f0a] text-[#ee5f0a] hover:text-white font-bold py-3 px-6 rounded-xl transition-all duration-300"
+                >
+                  Login
+                </motion.button>
+              </Link>
+              
+              <Link to="/register">
+                <motion.button
+                  whileHover={{ 
+                    scale: 1.02, 
+                    boxShadow: "0 8px 20px -8px rgba(238, 95, 10, 0.3)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] hover:from-[#d54f08] hover:to-[#ee5f0a] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 border border-[#ee5f0a]/20"
+                >
+                  Sign Up
+                </motion.button>
+              </Link>
             </motion.div>
           </div>
         </div>
       </motion.header>
 
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-32">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2 }}
-          className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-red-600/20"
-        />
-
         {/* Floating animation elements */}
         <motion.div
           animate={{
@@ -178,7 +119,7 @@ const Home = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-20 left-20 w-4 h-4 bg-orange-500 rounded-full blur-sm"
+          className="absolute top-20 left-20 w-4 h-4 bg-[#ee5f0a] rounded-full blur-sm"
         />
         <motion.div
           animate={{
@@ -190,7 +131,7 @@ const Home = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-40 right-32 w-6 h-6 bg-red-600 rounded-full blur-sm"
+          className="absolute top-40 right-32 w-6 h-6 bg-[#d54f08] rounded-full blur-sm"
         />
         <motion.div
           animate={{
@@ -205,192 +146,13 @@ const Home = () => {
           className="absolute bottom-32 left-1/3 w-3 h-3 bg-white rounded-full blur-sm"
         />
 
-        <motion.div
-          animate={{
-            y: [-40, 40, -40],
-            x: [15, -15, 15],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-60 left-1/4 w-2 h-2 bg-emerald-400 rounded-full blur-sm opacity-60"
-        />
-        <motion.div
-          animate={{
-            y: [25, -25, 25],
-            x: [-20, 20, -20],
-            scale: [0.8, 1.2, 0.8],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-80 right-20 w-5 h-5 bg-purple-500 rounded-full blur-sm opacity-50"
-        />
-        <motion.div
-          animate={{
-            y: [-35, 35, -35],
-            rotate: [180, 0, 180],
-          }}
-          transition={{
-            duration: 14,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-60 right-1/4 w-3 h-3 bg-blue-400 rounded-full blur-sm opacity-70"
-        />
-        <motion.div
-          animate={{
-            y: [30, -30, 30],
-            x: [10, -10, 10],
-            scale: [1, 0.5, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-1/2 left-10 w-4 h-4 bg-yellow-400 rounded-full blur-sm opacity-40"
-        />
-        <motion.div
-          animate={{
-            y: [-25, 25, -25],
-            x: [-15, 15, -15],
-            rotate: [0, 270, 360],
-          }}
-          transition={{
-            duration: 16,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-1/3 right-10 w-3 h-3 bg-pink-400 rounded-full blur-sm opacity-50"
-        />
-        <motion.div
-          animate={{
-            y: [40, -40, 40],
-            scale: [0.6, 1.4, 0.6],
-          }}
-          transition={{
-            duration: 22,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-80 left-1/2 w-2 h-2 bg-cyan-400 rounded-full blur-sm opacity-60"
-        />
-        <motion.div
-          animate={{
-            y: [-45, 45, -45],
-            x: [20, -20, 20],
-            rotate: [90, 270, 450],
-          }}
-          transition={{
-            duration: 24,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-96 left-3/4 w-6 h-6 bg-indigo-400 rounded-full blur-sm opacity-30"
-        />
-        <motion.div
-          animate={{
-            y: [15, -15, 15],
-            x: [-25, 25, -25],
-            scale: [1.2, 0.8, 1.2],
-          }}
-          transition={{
-            duration: 13,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-40 right-1/3 w-4 h-4 bg-teal-400 rounded-full blur-sm opacity-45"
-        />
-        <motion.div
-          animate={{
-            y: [-20, 20, -20],
-            rotate: [0, 360, 720],
-          }}
-          transition={{
-            duration: 19,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-72 left-1/2 w-3 h-3 bg-lime-400 rounded-full blur-sm opacity-55"
-        />
-        <motion.div
-          animate={{
-            y: [35, -35, 35],
-            x: [12, -12, 12],
-            scale: [0.7, 1.3, 0.7],
-          }}
-          transition={{
-            duration: 17,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-96 left-20 w-5 h-5 bg-rose-400 rounded-full blur-sm opacity-40"
-        />
-        <motion.div
-          animate={{
-            y: [-50, 50, -50],
-            x: [-30, 30, -30],
-            rotate: [45, 225, 405],
-          }}
-          transition={{
-            duration: 26,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-48 right-1/2 w-2 h-2 bg-amber-400 rounded-full blur-sm opacity-65"
-        />
-        <motion.div
-          animate={{
-            y: [22, -22, 22],
-            scale: [1.1, 0.9, 1.1],
-          }}
-          transition={{
-            duration: 21,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-20 left-2/3 w-3 h-3 bg-violet-400 rounded-full blur-sm opacity-50"
-        />
-        <motion.div
-          animate={{
-            y: [-28, 28, -28],
-            x: [18, -18, 18],
-            rotate: [120, 240, 360],
-          }}
-          transition={{
-            duration: 23,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-36 left-3/5 w-4 h-4 bg-slate-400 rounded-full blur-sm opacity-35"
-        />
-        <motion.div
-          animate={{
-            y: [32, -32, 32],
-            x: [-22, 22, -22],
-            scale: [0.9, 1.1, 0.9],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-72 right-2/3 w-6 h-6 bg-orange-300 rounded-full blur-sm opacity-25"
-        />
-
         <div className="relative z-10 w-full px-4 md:px-6 lg:px-16 xl:px-24">
           <div className="text-center max-w-6xl mx-auto">
             <motion.h1
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-8 leading-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold mb-6 sm:mb-8 leading-tight"
             >
               <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
                 {displayText}
@@ -402,83 +164,72 @@ const Home = () => {
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.8 }}
-                  className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent"
+                  className="bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] bg-clip-text text-transparent"
                 >
-                  Safely
+                  with TrustPeer
                 </motion.span>
               )}
             </motion.h1>
 
+            <motion.p
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.2, duration: 0.8 }}
+              className="text-lg sm:text-xl md:text-2xl text-gray-400 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
+            >
+              The most secure peer-to-peer crypto trading platform. Join thousands of traders who trust our escrow system to protect their transactions.
+            </motion.p>
+
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.8, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-20"
+              transition={{ delay: 1.6, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-20 px-4 sm:px-0"
             >
               <motion.div
                 whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.3)",
-                  y: -5
+                  scale: 1.02, 
+                  boxShadow: "0 10px 25px -8px rgba(238, 95, 10, 0.3)",
                 }}
-                whileTap={{ scale: 0.95 }}
-                className="group"
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
                 <Link
-                  to="/browse"
-                  className="relative block bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-kansas-bold py-6 px-12 rounded-2xl text-xl transition-all duration-500 shadow-2xl border border-blue-400/20 overflow-hidden min-w-[280px] text-center"
+                  to="/register"
+                  className="relative block bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] hover:from-[#d54f08] hover:to-[#ee5f0a] text-white font-bold py-4 sm:py-6 px-8 sm:px-12 rounded-2xl text-lg sm:text-xl transition-all duration-300 shadow-lg border border-[#ee5f0a]/20 min-w-[250px] sm:min-w-[280px] text-center"
                 >
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* Shine effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 group-hover:animate-pulse transition-all duration-700"></div>
-                  
-                  <div className="relative z-10 flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-3">
                     <motion.div
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 4 }}
                     >
-                      <Search size={24} className="text-white" />
+                      <ArrowRight size={20} className="text-white sm:w-6 sm:h-6" />
                     </motion.div>
-                    Find Traders
-                  </div>
-                  
-                  {/* Particle effects */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute top-2 right-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
-                    <div className="absolute bottom-3 left-6 w-1 h-1 bg-cyan-200 rounded-full animate-ping delay-300"></div>
+                    Start Trading
                   </div>
                 </Link>
               </motion.div>
 
               <motion.div
                 whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 20px 40px -12px rgba(148, 163, 184, 0.3), 0 0 30px rgba(148, 163, 184, 0.2)",
-                  y: -5
+                  scale: 1.02, 
+                  boxShadow: "0 8px 20px -8px rgba(148, 163, 184, 0.2)",
                 }}
-                whileTap={{ scale: 0.95 }}
-                className="group"
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
                 <Link
-                  to="/start-trade"
-                  className="relative block bg-gradient-to-br from-slate-800/60 to-slate-900/80 backdrop-blur-xl border-2 border-slate-600/50 hover:border-slate-400/70 text-white font-kansas-bold py-6 px-12 rounded-2xl text-xl transition-all duration-500 shadow-lg min-w-[280px] text-center overflow-hidden"
+                  to="/login"
+                  className="relative block bg-transparent border-2 border-gray-600 hover:border-gray-400 text-white font-bold py-4 sm:py-6 px-8 sm:px-12 rounded-2xl text-lg sm:text-xl transition-all duration-300 shadow-sm min-w-[250px] sm:min-w-[280px] text-center backdrop-blur-sm"
                 >
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-slate-600/20 to-slate-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 transition-all duration-700"></div>
-                  
-                  <div className="relative z-10 flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-3">
                     <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
                     >
-                      <Rocket size={24} className="text-white" />
+                      <Shield size={20} className="text-white sm:w-6 sm:h-6" />
                     </motion.div>
-                    Start Trade
+                    Already a Member?
                   </div>
                 </Link>
               </motion.div>
@@ -488,32 +239,32 @@ const Home = () => {
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1, duration: 0.8 }}
-              className="relative max-w-6xl mx-auto"
+              className="relative max-w-6xl mx-auto px-4 sm:px-0"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-red-600/5 to-orange-500/5 rounded-3xl blur-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#ee5f0a]/5 via-[#d54f08]/5 to-[#ee5f0a]/5 rounded-3xl blur-3xl"></div>
 
-              <div className="relative bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="relative bg-gradient-to-r from-[#0f1011]/80 to-[#0f1011]/60 backdrop-blur-sm border border-gray-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
                   {[
                     {
-                      value: "<1s",
-                      label: "Transaction Speed",
+                      value: "99.9%",
+                      label: "Uptime",
                       icon: Zap,
-                      color: "from-emerald-400 to-emerald-600",
-                      bgColor: "bg-emerald-500/10",
-                      borderColor: "border-emerald-500/20",
+                      color: "from-green-400 to-green-600",
+                      bgColor: "bg-green-500/10",
+                      borderColor: "border-green-500/20",
                     },
                     {
                       value: "100%",
                       label: "Security Rate",
                       icon: Shield,
-                      color: "from-orange-400 to-orange-600",
-                      bgColor: "bg-orange-500/10",
-                      borderColor: "border-orange-500/20",
+                      color: "from-[#ee5f0a] to-[#d54f08]",
+                      bgColor: "bg-[#ee5f0a]/10",
+                      borderColor: "border-[#ee5f0a]/20",
                     },
                     {
                       value: "0",
-                      label: "Scams Reported",
+                      label: "Funds Lost",
                       icon: Lock,
                       color: "from-red-400 to-red-600",
                       bgColor: "bg-red-500/10",
@@ -521,8 +272,8 @@ const Home = () => {
                     },
                     {
                       value: "24/7",
-                      label: "Live Support",
-                      icon: MessageCircle,
+                      label: "Support",
+                      icon: Users,
                       color: "from-blue-400 to-blue-600",
                       bgColor: "bg-blue-500/10",
                       borderColor: "border-blue-500/20",
@@ -533,39 +284,39 @@ const Home = () => {
                       initial={{ scale: 0, y: 50 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ delay: 1.2 + index * 0.1, duration: 0.6 }}
-                      whileHover={{ scale: 1.05, y: -5 }}
-                      className={`relative group ${stat.bgColor} ${stat.borderColor} border rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-xl`}
+                      whileHover={{ scale: 1.03 }}
+                      className={`relative group ${stat.bgColor} ${stat.borderColor} border rounded-xl sm:rounded-2xl p-3 sm:p-6 text-center transition-all duration-300 hover:shadow-lg`}
                     >
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 1.4 + index * 0.1, duration: 0.5 }}
-                        className="text-3xl mb-3 flex justify-center"
+                        className="text-2xl sm:text-3xl mb-2 sm:mb-3 flex justify-center"
                       >
-                        <stat.icon size={32} className="text-white" />
+                        <stat.icon size={24} className="text-white sm:w-8 sm:h-8" />
                       </motion.div>
 
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 1.6 + index * 0.1, duration: 0.5 }}
-                        className={`text-2xl md:text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}
+                        className={`text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-1 sm:mb-2`}
                       >
                         {stat.value}
                       </motion.div>
 
-                      <div className="text-xs md:text-sm text-gray-300 font-medium">
+                      <div className="text-xs sm:text-sm text-gray-300 font-medium">
                         {stat.label}
                       </div>
 
                       <div
-                        className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
+                        className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 rounded-xl sm:rounded-2xl transition-opacity duration-300`}
                       ></div>
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-full"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 sm:w-32 h-1 bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] rounded-full"></div>
               </div>
             </motion.div>
           </div>
@@ -573,7 +324,7 @@ const Home = () => {
       </section>
 
       <section className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#080909] via-[#0f1011] to-[#080909]"></div>
 
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-16 xl:px-24">
           <motion.div
@@ -588,15 +339,15 @@ const Home = () => {
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 backdrop-blur-sm mb-6"
+              className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-[#ee5f0a]/10 to-[#d54f08]/10 border border-[#ee5f0a]/20 backdrop-blur-sm mb-6"
             >
               <motion.span
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="w-3 h-3 bg-emerald-500 rounded-full mr-3"
+                className="w-3 h-3 bg-[#ee5f0a] rounded-full mr-3"
               />
-              <span className="text-sm font-medium text-emerald-400">
-                What We Offer
+              <span className="text-sm font-medium text-[#ee5f0a]">
+                Why Choose TrustPeer
               </span>
             </motion.div>
 
@@ -605,14 +356,14 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 tracking-tight"
             >
               <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Fast & Secure
+                Secure & Trusted
               </span>
               <br />
-              <span className="bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
-                Trading
+              <span className="bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] bg-clip-text text-transparent">
+                Trading Platform
               </span>
             </motion.h2>
 
@@ -621,42 +372,40 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
             >
-              Three core features that make crypto trading safe and lightning
-              fast
+              Three core features that make crypto trading safe and reliable
             </motion.p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 max-w-6xl mx-auto px-4 sm:px-0">
             {[
               {
-                title: "Instant Escrow",
-                description:
-                  "Sub-second fund locking with military-grade encryption",
+                title: "Smart Escrow",
+                description: "Automated escrow system protects both buyers and sellers during every transaction",
                 delay: 0.1,
                 icon: Lock,
-                gradient: "from-emerald-400 to-emerald-600",
-                iconBg: "bg-emerald-500/10",
-                iconColor: "text-emerald-400"
+                gradient: "from-[#ee5f0a] to-[#d54f08]",
+                iconBg: "bg-[#ee5f0a]/10",
+                iconColor: "text-[#ee5f0a]"
               },
               {
-                title: "Real-Time Security",
-                description: "Live monitoring and instant fraud detection",
+                title: "Trader Verification",
+                description: "Comprehensive verification system ensures you trade with trusted, verified users",
                 delay: 0.2,
                 icon: Shield,
+                gradient: "from-green-400 to-green-600",
+                iconBg: "bg-green-500/10",
+                iconColor: "text-green-400"
+              },
+              {
+                title: "Real-Time Monitoring",
+                description: "24/7 monitoring and instant dispute resolution to keep your trades secure",
+                delay: 0.3,
+                icon: Zap,
                 gradient: "from-blue-400 to-blue-600",
                 iconBg: "bg-blue-500/10",
                 iconColor: "text-blue-400"
-              },
-              {
-                title: "Zero-Delay Settlements",
-                description: "Automated releases the moment payment confirms",
-                delay: 0.3,
-                icon: Zap,
-                gradient: "from-purple-400 to-purple-600",
-                iconBg: "bg-purple-500/10",
-                iconColor: "text-purple-400"
               },
             ].map((feature, index) => (
               <motion.div
@@ -670,11 +419,11 @@ const Home = () => {
                   ease: "easeOut"
                 }}
                 whileHover={{ 
-                  y: -5, 
-                  scale: 1.02,
+                  y: -3, 
+                  scale: 1.01,
                   transition: { duration: 0.2 }
                 }}
-                className="glass-effect border border-white/10 rounded-3xl p-8 text-center hover:border-white/20 transition-all duration-300"
+                className="bg-[#0f1011] border border-gray-800/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center hover:border-gray-700/50 transition-all duration-300"
               >
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
@@ -686,11 +435,11 @@ const Home = () => {
                     type: "spring",
                     stiffness: 200
                   }}
-                  className="flex justify-center mb-6"
+                  className="flex justify-center mb-4 sm:mb-6"
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center relative group`}>
-                    <feature.icon size={32} className="text-white relative z-10" />
-                    <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${feature.gradient} rounded-xl sm:rounded-2xl flex items-center justify-center relative group`}>
+                    <feature.icon size={24} className="text-white sm:w-8 sm:h-8 relative z-10" />
+                    <div className="absolute inset-0 bg-white/20 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                 </motion.div>
                 
@@ -699,7 +448,7 @@ const Home = () => {
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: feature.delay + 0.4 }}
-                  className="text-2xl font-bold text-white mb-4"
+                  className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4"
                 >
                   {feature.title}
                 </motion.h3>
@@ -709,7 +458,7 @@ const Home = () => {
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: feature.delay + 0.5 }}
-                  className="text-gray-300 text-lg leading-relaxed"
+                  className="text-gray-300 text-base sm:text-lg leading-relaxed"
                 >
                   {feature.description}
                 </motion.p>
@@ -720,8 +469,8 @@ const Home = () => {
       </section>
 
       <section className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#f5762c] via-[#e53825] to-[#f5762c]"></div>
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ee5f0a] via-[#d54f08] to-[#ee5f0a]"></div>
+        <div className="absolute inset-0 bg-[#080909]/20"></div>
 
         <motion.div
           animate={{
@@ -751,7 +500,7 @@ const Home = () => {
                 className="w-3 h-3 bg-white rounded-full mr-3"
               />
               <span className="text-sm font-medium text-white">
-                Ready to Start?
+                Join the Community
               </span>
             </motion.div>
 
@@ -759,16 +508,16 @@ const Home = () => {
               initial={{ y: 100, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-5xl md:text-6xl font-extrabold text-white mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 sm:mb-6"
             >
-              Trade in Under
+              Start Trading in
               <motion.span
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
-                className="block text-6xl md:text-7xl bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent"
+                className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent"
               >
-                60 Seconds
+                Minutes
               </motion.span>
             </motion.h2>
 
@@ -776,41 +525,79 @@ const Home = () => {
               initial={{ y: 50, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-2xl text-white/90 mb-12 leading-relaxed"
+              className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-12 leading-relaxed px-4 sm:px-0"
             >
-              Experience the fastest and most secure way to trade crypto
+              Join thousands of traders who trust TrustPeer for secure P2P crypto transactions
             </motion.p>
 
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4 sm:px-0"
             >
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
                 <Link
-                  to={walletState.isConnected ? "/dashboard" : "/login"}
-                  className="bg-white hover:bg-gray-100 text-[#f5762c] font-bold py-4 px-12 rounded-2xl text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl min-w-[250px] block text-center"
+                  to="/register"
+                  className="bg-white hover:bg-gray-100 text-[#ee5f0a] font-bold py-3 sm:py-4 px-8 sm:px-12 rounded-xl sm:rounded-2xl text-lg sm:text-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[250px] block text-center"
                 >
-                  {walletState.isConnected
-                    ? "Go to Dashboard"
-                    : "Connect Wallet"}
+                  Create Account
                 </Link>
               </motion.div>
 
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto"
               >
                 <Link
-                  to="/browse"
-                  className="bg-white/10 hover:bg-white/20 border-2 border-white/30 hover:border-white/50 text-white font-bold py-4 px-12 rounded-2xl text-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[250px] block text-center"
+                  to="/login"
+                  className="bg-white/10 hover:bg-white/20 border-2 border-white/30 hover:border-white/50 text-white font-bold py-3 sm:py-4 px-8 sm:px-12 rounded-xl sm:rounded-2xl text-lg sm:text-xl transition-all duration-300 shadow-sm hover:shadow-lg min-w-[200px] sm:min-w-[250px] block text-center backdrop-blur-sm"
                 >
-                  Start Trading
+                  Sign In
                 </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Trust indicators */}
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-white/90"
+            >
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.9, duration: 0.4 }}
+                className="flex items-center gap-3"
+              >
+                <CheckCircle size={20} className="text-green-400 sm:w-6 sm:h-6" />
+                <span className="text-base sm:text-lg font-medium">Verified Traders</span>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 1.0, duration: 0.4 }}
+                className="flex items-center gap-3"
+              >
+                <Shield size={20} className="text-[#ee5f0a] sm:w-6 sm:h-6" />
+                <span className="text-base sm:text-lg font-medium">Secure Escrow</span>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 1.1, duration: 0.4 }}
+                className="flex items-center gap-3"
+              >
+                <Star size={20} className="text-yellow-400 sm:w-6 sm:h-6 fill-current" />
+                <span className="text-base sm:text-lg font-medium">4.9/5 Rating</span>
               </motion.div>
             </motion.div>
           </div>
@@ -822,7 +609,7 @@ const Home = () => {
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="relative bg-black border-t border-white/10"
+        className="relative bg-[#080909] border-t border-gray-800/50"
       >
         <div className="w-full px-4 sm:px-6 lg:px-16 xl:px-24 py-16">
           <div className="grid md:grid-cols-4 gap-12 max-w-7xl mx-auto">
@@ -834,19 +621,19 @@ const Home = () => {
                     alt="TrustPeer"
                     className="h-10 w-auto"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-full blur-xl opacity-20"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] rounded-full blur-xl opacity-20"></div>
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight">
                   TrustPeer
                 </span>
               </div>
               <p className="text-gray-300 text-lg mb-6 leading-relaxed font-light">
-                Decentralized protection for P2P crypto traders.
+                The most secure peer-to-peer crypto trading platform. Join thousands of verified traders.
               </p>
 
               <div className="flex space-x-4 mt-8">
                 <a href="#" className="group">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="currentColor"
@@ -857,7 +644,7 @@ const Home = () => {
                   </div>
                 </a>
                 <a href="#" className="group">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#e53825] to-[#f5762c] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#d54f08] to-[#ee5f0a] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="currentColor"
@@ -868,7 +655,7 @@ const Home = () => {
                   </div>
                 </a>
                 <a href="#" className="group">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#f5762c] to-[#e53825] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="currentColor"
@@ -883,73 +670,73 @@ const Home = () => {
 
             <div>
               <h3 className="text-xl font-bold text-white mb-6 tracking-tight">
-                Product
+                Platform
               </h3>
               <ul className="space-y-4">
                 <li>
                   <Link
-                    to="/browse"
-                    className="text-gray-300 hover:text-[#f5762c] transition-colors duration-200 text-base font-light"
+                    to="/register"
+                    className="text-gray-300 hover:text-[#ee5f0a] transition-colors duration-200 text-base font-light"
                   >
-                    Verify Trader
+                    Sign Up
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/start-trade"
-                    className="text-gray-300 hover:text-[#f5762c] transition-colors duration-200 text-base font-light"
+                    to="/login"
+                    className="text-gray-300 hover:text-[#ee5f0a] transition-colors duration-200 text-base font-light"
                   >
-                    Start Trade
+                    Login
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to={walletState.isConnected ? "/dashboard" : "/login"}
-                    className="text-gray-300 hover:text-[#f5762c] transition-colors duration-200 text-base font-light"
+                  <a
+                    href="#features"
+                    className="text-gray-300 hover:text-[#ee5f0a] transition-colors duration-200 text-base font-light"
                   >
-                    {walletState.isConnected ? "Dashboard" : "Connect Wallet"}
-                  </Link>
+                    Features
+                  </a>
                 </li>
               </ul>
             </div>
 
             <div>
               <h3 className="text-xl font-bold text-white mb-6 tracking-tight">
-                Community
+                Support
               </h3>
               <ul className="space-y-4">
                 <li>
                   <a
                     href="#"
-                    className="text-gray-300 hover:text-[#e53825] transition-colors duration-200 text-base font-light"
+                    className="text-gray-300 hover:text-[#d54f08] transition-colors duration-200 text-base font-light"
                   >
-                    Telegram
+                    Help Center
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="text-gray-300 hover:text-[#e53825] transition-colors duration-200 text-base font-light"
+                    className="text-gray-300 hover:text-[#d54f08] transition-colors duration-200 text-base font-light"
                   >
-                    Discord
+                    Contact Us
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="text-gray-300 hover:text-[#e53825] transition-colors duration-200 text-base font-light"
+                    className="text-gray-300 hover:text-[#d54f08] transition-colors duration-200 text-base font-light"
                   >
-                    Twitter
+                    FAQ
                   </a>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-white/10 mt-16 pt-8 text-center">
+          <div className="border-t border-gray-800/50 mt-16 pt-8 text-center">
             <p className="text-gray-400 text-base font-light tracking-wide">
               &copy; 2025 TrustPeer.
-              <span className="text-white"> Built on ICP.</span>
+              <span className="text-white"> Secure P2P Trading Platform.</span>
             </p>
           </div>
         </div>

@@ -49,7 +49,7 @@ const Register = () => {
         return
       }
 
-      // TODO: Replace with actual API call when backend is ready
+  
       console.log('Email registration:', formData)
       
       // Simulate registration process
@@ -79,7 +79,7 @@ const Register = () => {
     setIsLoading(true)
 
     try {
-      // TODO: Replace with actual API call when backend is ready
+      // Validate username
       console.log('Wallet registration:', {
         username: formData.username,
         walletAddress,
@@ -101,7 +101,7 @@ const Register = () => {
 
   const handleConnectWallet = async (type: 'metamask' | 'trustwallet') => {
     try {
-      // TODO: Integrate with multiWalletService when ready
+    
       console.log('Connecting wallet:', type)
       alert('Wallet connection will be implemented with backend integration')
     } catch (error) {

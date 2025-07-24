@@ -13,7 +13,6 @@ import Dashboard from './Pages/Dashboard'
 import Browse from './Pages/Browse'
 import StartTrade from './Pages/StartTrade'
 import EscrowProgress from './Pages/EscrowProgress'
-import ConfirmRelease from './Pages/ConfirmRelease'
 import RateTrader from './Pages/RateTrader'
 import Transactions from './Pages/Transactions'
 import Disputes from './Pages/Disputes'
@@ -51,7 +50,6 @@ const AppRouter = () => {
         <Route path="/browse" element={<Browse />} />
         <Route path="/start-trade" element={<StartTrade />} />
         <Route path="/escrow-progress" element={<EscrowProgress />} />
-        <Route path="/confirm-release" element={<ConfirmRelease />} />
         <Route path="/rate-trader" element={<RateTrader />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/disputes" element={<Disputes />} />

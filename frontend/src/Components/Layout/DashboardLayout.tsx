@@ -12,7 +12,8 @@ import {
   User,
   Menu,
   X,
-  Bell
+  Bell,
+  Shield
 } from 'lucide-react'
 
 interface DashboardLayoutProps {
@@ -44,6 +45,7 @@ const DashboardLayout = ({
   const [activeMenuItem, setActiveMenuItem] = useState(() => {
     const path = location.pathname
     if (path.includes('browse')) return 'browse'
+    if (path.includes('trade') || path.includes('escrow') || path.includes('start-trade')) return 'trade'
     if (path.includes('transactions')) return 'transactions'
     if (path.includes('disputes')) return 'disputes'
     if (path.includes('profile')) return 'profile'
@@ -55,7 +57,7 @@ const DashboardLayout = ({
   const [hasNewNotifications, setHasNewNotifications] = useState(true)
   const [notificationCount, setNotificationCount] = useState(3)
 
-  // Use external setShowMobileMenu if provided, otherwise use internal state
+  
   const toggleMobileMenu = (show: boolean) => {
     if (setShowMobileMenu) {
       setShowMobileMenu(show)
@@ -77,6 +79,9 @@ const DashboardLayout = ({
         break
       case 'browse':
         navigate('/browse', { state: locationState })
+        break
+      case 'trade':
+        navigate('/start-trade', { state: locationState })
         break
       case 'transactions':
         navigate('/transactions', { state: locationState })
@@ -118,6 +123,7 @@ const DashboardLayout = ({
   useEffect(() => {
     const path = location.pathname
     if (path.includes('browse')) setActiveMenuItem('browse')
+    else if (path.includes('trade') || path.includes('escrow') || path.includes('start-trade')) setActiveMenuItem('trade')
     else if (path.includes('transactions')) setActiveMenuItem('transactions')
     else if (path.includes('disputes')) setActiveMenuItem('disputes')
     else if (path.includes('profile')) setActiveMenuItem('profile')
@@ -145,6 +151,7 @@ const DashboardLayout = ({
             {[
               { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
               { id: 'browse', label: 'Browse', icon: Search },
+              { id: 'trade', label: 'Trade', icon: Shield },
               { id: 'transactions', label: 'Transactions', icon: Briefcase },
               { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
               { id: 'profile', label: 'Profile', icon: User }
@@ -220,6 +227,7 @@ const DashboardLayout = ({
                 {[
                   { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
                   { id: 'browse', label: 'Browse', icon: Search },
+                  { id: 'trade', label: 'Trade', icon: Shield },
                   { id: 'transactions', label: 'Transactions', icon: Briefcase },
                   { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
                   { id: 'profile', label: 'Profile', icon: User }

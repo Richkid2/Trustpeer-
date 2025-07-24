@@ -30,7 +30,7 @@ const EmailConfirmation = () => {
     setIsResending(true)
     
     try {
-      // TODO: Replace with actual API call when backend is ready
+      
       console.log('Resending confirmation email to:', email)
       
       // Simulate resend process

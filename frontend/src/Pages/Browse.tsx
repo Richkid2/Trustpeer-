@@ -280,18 +280,21 @@ const Browse = () => {
 
   // Start trade with trader
   const handleStartTrade = (trader: Trader) => {
-    navigate('/start-trade', { 
-      state: { 
-        ...locationState, 
-        selectedTrader: trader 
-      } 
-    })
+    const params = new URLSearchParams({
+      traderId: trader.id,
+      username: trader.username,
+      rating: trader.trustScore.toString(),
+      totalTrades: trader.totalTrades.toString(),
+      rate: '1650', 
+      isVerified: trader.verified.toString()
+    });
+    
+    navigate(`/start-trade?${params.toString()}`);
   }
 
   // View trader profile
   const handleViewProfile = (trader: Trader) => {
     console.log('View trader profile:', trader.id)
-    // Here you would navigate to a detailed trader profile page
   }
 
   // Get badge color
@@ -335,9 +338,9 @@ const Browse = () => {
   return (
     <div className="min-h-screen bg-[#080909] flex">
       {/* Sidebar */}
-      <div className="hidden lg:flex w-64 bg-[#0a0b0c] border-r border-gray-800 flex-col">
+      <div className="hidden lg:flex w-64 bg-[#0a0b0c] mt-7 border-r border-gray-900 flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-800">
+        <div className="p-6 border-b border-gray-900">
           <div className="flex items-center justify-center">
             <img 
               src="/src/assets/images/trustpeer-logo.png" 
@@ -491,7 +494,6 @@ const Browse = () => {
                 <p className="text-gray-400 text-sm lg:text-base">
                   Find and connect with trusted crypto traders
                 </p>
-                <p className="text-gray-500 text-xs lg:text-sm mt-1">GMT+1: 4C:2D 📍</p>
               </div>
             </div>
             
@@ -749,7 +751,7 @@ const Browse = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#ee5f0a] to-[#d54f08] rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#ee5f0a] rounded-full flex items-center justify-center">
                               <span className="text-white font-bold text-sm sm:text-base">
                                 {trader.username.substring(0, 2).toUpperCase()}
                               </span>
