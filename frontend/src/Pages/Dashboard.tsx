@@ -95,8 +95,7 @@ const Dashboard = () => {
     if (!telegramHandle.trim()) return
 
     setIsVerifying(true)
-    
-    // Simulate API call with longer delay to show the modal
+  
     await new Promise(resolve => setTimeout(resolve, 3000))
     
     // Mock verification result
@@ -236,10 +235,8 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
-
-          {/* Mobile-responsive grid: 1 column on mobile, 4 columns on xl+ */}
+        {/* Verification Section */}
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
-            {/* Left Side - Stats and Trade History: Full width on mobile, 3/4 on xl+ */}
             <div className="xl:col-span-3 space-y-6 lg:space-y-8">
               {/* Stats Cards - Responsive grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -476,8 +473,6 @@ const Dashboard = () => {
                 </div>
               </motion.div>
             </div>
-
-            {/* Right Side - Verify Trader: Full width on mobile, 1/4 on xl+ */}
             <div className="xl:col-span-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
