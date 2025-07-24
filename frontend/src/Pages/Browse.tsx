@@ -283,10 +283,9 @@ const Browse = () => {
     const params = new URLSearchParams({
       traderId: trader.id,
       username: trader.username,
-      fullName: trader.username, // You might want to add fullName to the Trader interface
       rating: trader.trustScore.toString(),
       totalTrades: trader.totalTrades.toString(),
-      rate: '1650', // This should come from the trader data
+      rate: '1650', 
       isVerified: trader.verified.toString()
     });
     
@@ -296,7 +295,6 @@ const Browse = () => {
   // View trader profile
   const handleViewProfile = (trader: Trader) => {
     console.log('View trader profile:', trader.id)
-    // Here you would navigate to a detailed trader profile page
   }
 
   // Get badge color

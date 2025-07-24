@@ -1,21 +1,23 @@
-import { motion } from 'framer-motion'
-import { useState } from 'react'
-import trustpeerLogo from '../assets/images/trustpeer-logo.png'
+import { motion } from "framer-motion";
+import { useState } from "react";
+import trustpeerLogo from "../assets/images/trustpeer-logo.png";
 
 const AppLoader = () => {
-  const [imageError, setImageError] = useState(false)
-  
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    if (!e.currentTarget.src.includes('/trustpeer-logo.png')) {
-      e.currentTarget.src = '/trustpeer-logo.png'
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    if (!e.currentTarget.src.includes("/trustpeer-logo.png")) {
+      e.currentTarget.src = "/trustpeer-logo.png";
     } else {
-      setImageError(true)
+      setImageError(true);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-[#080909] flex items-center justify-center z-50 overflow-hidden">
-      {/* Animated background elements with brand colors */}
+      {/* Background effects */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -24,10 +26,14 @@ const AppLoader = () => {
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
-          backgroundSize: '40px 40px'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)",
+            backgroundSize: "40px 40px",
+          }}
+        ></div>
       </div>
 
       <div className="text-center relative z-10">
@@ -40,57 +46,59 @@ const AppLoader = () => {
         >
           {!imageError ? (
             <motion.div className="relative">
-              {/* Glow effect behind logo with brand color */}
+              {/* Animated background with brand color */}
               <div className="absolute inset-0 bg-[#ee5f0a]/20 rounded-3xl blur-2xl scale-150"></div>
-              
+
               <motion.img
                 src={trustpeerLogo}
                 alt="TrustPeer Logo"
                 onError={handleImageError}
                 className="relative w-32 h-32 mx-auto rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-white/10"
-                animate={{ 
+                animate={{
                   scale: [1, 1.08, 1],
                   rotateY: [0, 10, -10, 0],
                   boxShadow: [
                     "0 20px 60px rgba(0,0,0,0.4)",
                     "0 25px 80px rgba(238, 95, 10, 0.3), 0 0 40px rgba(238, 95, 10, 0.2)",
-                    "0 20px 60px rgba(0,0,0,0.4)"
-                  ]
+                    "0 20px 60px rgba(0,0,0,0.4)",
+                  ],
                 }}
-                transition={{ 
+                transition={{
                   scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
                   rotateY: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                  boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                  boxShadow: {
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
                 }}
               />
             </motion.div>
           ) : (
-            // Enhanced fallback with brand styling
             <motion.div
               className="relative w-32 h-32 mx-auto rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.4)] bg-[#ee5f0a] flex items-center justify-center border border-white/10 overflow-hidden"
-              animate={{ 
+              animate={{
                 scale: [1, 1.08, 1],
                 rotateY: [0, 10, -10, 0],
                 boxShadow: [
                   "0 20px 60px rgba(0,0,0,0.4)",
                   "0 25px 80px rgba(238, 95, 10, 0.4), 0 0 40px rgba(238, 95, 10, 0.3)",
-                  "0 20px 60px rgba(0,0,0,0.4)"
-                ]
+                  "0 20px 60px rgba(0,0,0,0.4)",
+                ],
               }}
-              transition={{ 
+              transition={{
                 scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
                 rotateY: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" },
               }}
             >
-              {/* Animated background with brand color */}
               <div className="absolute inset-0 bg-[#ee5f0a]/20 animate-pulse"></div>
-              <span className="relative text-white font-kansas-black text-3xl">TP</span>
+              <span className="relative text-white font-kansas-black text-3xl">
+                TP
+              </span>
             </motion.div>
           )}
         </motion.div>
-
-        {/* Brand name with brand colors */}
         <motion.h1
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -100,7 +108,6 @@ const AppLoader = () => {
           TrustPeer
         </motion.h1>
 
-        {/* Tagline with brand styling */}
         <motion.p
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -110,14 +117,13 @@ const AppLoader = () => {
           Next-Generation P2P Trading Platform
         </motion.p>
 
-        {/* Enhanced loading animation with brand colors */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
           className="flex flex-col items-center justify-center space-y-6"
         >
-          {/* Modern loading indicator with brand colors */}
+          {/* Modern loading indicator */}
           <div className="flex items-center space-x-3">
             {[0, 1, 2].map((index) => (
               <motion.div
@@ -129,19 +135,19 @@ const AppLoader = () => {
                   boxShadow: [
                     "0 0 0 rgba(238, 95, 10, 0)",
                     "0 0 20px rgba(238, 95, 10, 0.6)",
-                    "0 0 0 rgba(238, 95, 10, 0)"
-                  ]
+                    "0 0 0 rgba(238, 95, 10, 0)",
+                  ],
                 }}
                 transition={{
                   duration: 1.8,
                   repeat: Infinity,
                   delay: index * 0.3,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               />
             ))}
           </div>
-          
+
           {/* Loading text */}
           <motion.p
             animate={{ opacity: [0.5, 1, 0.5] }}
@@ -151,24 +157,24 @@ const AppLoader = () => {
             Initializing secure connections...
           </motion.p>
 
-          {/* Progress bar with brand colors */}
+          {/* Progress bar */}
           <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
             <motion.div
               className="h-full bg-[#ee5f0a]"
-              animate={{ 
+              animate={{
                 x: ["-100%", "100%"],
-                opacity: [0.6, 1, 0.6]
+                opacity: [0.6, 1, 0.6],
               }}
-              transition={{ 
+              transition={{
                 x: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" },
               }}
             />
           </div>
         </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AppLoader
+export default AppLoader;
