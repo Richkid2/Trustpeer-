@@ -25,7 +25,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#080909] relative overflow-hidden">
-      {/* Animated background elements with brand colors */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 left-10 w-96 h-96 bg-[#ee5f0a]/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-[#ee5f0a]/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -109,7 +108,7 @@ const Home = () => {
       </motion.header>
 
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-32">
-        {/* Floating animation elements with brand colors */}
+        {/* Floating animation elements */}
         <motion.div
           animate={{
             y: [-20, 20, -20],
