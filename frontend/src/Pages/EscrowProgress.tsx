@@ -66,7 +66,7 @@ const EscrowProgress = () => {
     return () => clearInterval(timer)
   }, [])
 
-  // Auto-progress for demo purposes (remove when using real API)
+
   useEffect(() => {
     let autoProgressTimer: number
     let countdownTimer: number
@@ -145,7 +145,7 @@ const EscrowProgress = () => {
           animate={{ opacity: 1, x: 0 }}
           className="w-full lg:w-80 bg-[#0f1011] border-b lg:border-b-0 lg:border-r border-white/10 p-4 lg:p-6 flex flex-col"
         >
-          {/* Action Buttons - Moved to top */}
+          {/* Action Buttons */}
           <div className="flex gap-2 mb-6">
             <button className="flex-1 bg-red-500/10 border border-red-500/20 text-red-400 py-2 px-2 lg:px-3 rounded-lg hover:bg-red-500/20 transition-colors flex items-center justify-center gap-1 lg:gap-2 text-xs lg:text-sm">
               <AlertCircle className="w-4 h-4" />
