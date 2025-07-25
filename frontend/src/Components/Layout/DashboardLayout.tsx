@@ -138,7 +138,7 @@ const DashboardLayout = ({
         <div className="p-6 border-b border-gray-900">
           <div className="flex items-center justify-center">
             <img 
-              src="/src/assets/images/trustpeer-logo.png" 
+              src="/trustpeer-logo.png" 
               alt="TrustPeer" 
               className="h-8 w-auto"
             />
@@ -208,7 +208,7 @@ const DashboardLayout = ({
             <div className="p-6 border-b border-gray-800 flex items-center justify-between">
               <div className="flex items-center justify-center">
                 <img 
-                  src="/src/assets/images/trustpeer-logo.png" 
+                  src="/trustpeer-logo.png" 
                   alt="TrustPeer" 
                   className="h-8 w-auto"
                 />
