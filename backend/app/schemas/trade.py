@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from app.models.trade import TradeStatus, TradeType
+from app.models.trade import TradeStatus, TradeType, CryptoCurrency
 
 class TradeBase(BaseModel):
     crypto_amount: float
     fiat_amount: float
-    exchange_rate: float
-    crypto_currency: str = "USDT"
+    exchange_brate: float
+    crypto_currency: str = CryptoCurrency
     fiat_currency: str = "NGN"
     trade_type: TradeType
     payment_method: str
