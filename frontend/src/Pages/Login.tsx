@@ -330,21 +330,21 @@ const Login = () => {
                 </p>
               </motion.div>
 
-              {/* Plug Wallet */}
+              {/* Internet Identity */}
               <motion.button
                 whileHover={{ 
                   scale: 1.02, 
                   boxShadow: "0 8px 20px -8px rgba(238, 95, 10, 0.3)",
                 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => handleWalletConnect(WalletType.PLUG)}
-                disabled={loadingWallet === WalletType.PLUG}
+                onClick={() => handleWalletConnect(WalletType.INTERNET_IDENTITY)}
+                disabled={loadingWallet === WalletType.INTERNET_IDENTITY}
                 className="w-full bg-gray-800/50 hover:bg-[#ee5f0a]/10 border border-gray-700/50 hover:border-[#ee5f0a]/30 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.7 }}
               >
-                {loadingWallet === WalletType.PLUG ? (
+                {loadingWallet === WalletType.INTERNET_IDENTITY ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
@@ -356,13 +356,13 @@ const Login = () => {
                 ) : (
                   <>
                     <motion.div 
-                      className="w-6 h-6 mr-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg"
+                      className="w-6 h-6 mr-3 bg-gradient-to-r from-[#ee5f0a] to-[#d54f08] rounded-full flex items-center justify-center shadow-lg"
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
-                      <span className="text-white text-xs font-bold">P</span>
+                      <span className="text-white text-xs font-bold">II</span>
                     </motion.div>
-                    Plug Wallet
+                    Internet Identity
                   </>
                 )}
               </motion.button>
@@ -388,7 +388,7 @@ const Login = () => {
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-3"
                     />
-                    Connecting...
+                    Connecting..
                   </>
                 ) : (
                   <>
